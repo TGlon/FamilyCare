@@ -65,6 +65,28 @@ export default {
                 required
               />
             </div>
+            <!-- <div class="form-group">
+              <label for="relationship"
+                >Mối Quan Hệ(<span style="color: red">*</span>):</label
+              >
+              <select
+                class="form-control"
+                id="relationship"
+                name="relationship"
+                v-model="item.relationship"
+                required
+              >
+                <option value="Chủ Hộ" selected>Chủ Hộ</option>
+                <option value="Con">Con</option>
+                <option value="Vợ">Vợ</option>
+                <option value="Mẹ">Mẹ</option>
+                <option value="Bố">Bố</option>
+                <option value="Em">Em</option>
+                <option value="Anh">Anh</option>
+                <option value="Chị">Chị</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div> -->
             <div class="form-group">
               <label for="insurance"
                 >Mã Y Tế(<span style="color: red">*</span>):</label
@@ -101,6 +123,19 @@ export default {
                 id="passport"
                 name="passport"
                 v-model="item.passport"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="digital_identity"
+                >Mã Định Danh(<span style="color: red">*</span>):</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="digital_identity"
+                name="digital_identity"
+                v-model="item.digital_identity"
                 required
               />
             </div>
@@ -156,29 +191,46 @@ export default {
                 required
               />
             </div>
+            
             <div class="form-group">
-              <label for="relationship"
-                >Mối Quan Hệ(<span style="color: red">*</span>):</label
+              <label for="email"
+                >Email(<span style="color: red">*</span>):</label
               >
-              <select
+              <input
+                type="text"
                 class="form-control"
-                id="relationship"
-                name="relationship"
-                v-model="item.relationship"
+                id="email"
+                name="email"
+                v-model="item.email"
                 required
-              >
-                <option value="Chủ Hộ" selected>Chủ Hộ</option>
-                <option value="Con">Con</option>
-                <option value="Vợ">Vợ</option>
-                <option value="Mẹ">Mẹ</option>
-                <option value="Bố">Bố</option>
-                <option value="Em">Em</option>
-                <option value="Anh">Anh</option>
-                <option value="Chị">Chị</option>
-                <option value="Khác">Khác</option>
-              </select>
+              />
             </div>
-
+            <div class="form-group">
+              <label for="nation"
+                >Quốc Tịch(<span style="color: red">*</span>):</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="nation"
+                name="nation"
+                v-model="item.nation"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="ethnic"
+                >Dân Tộc(<span style="color: red">*</span>):</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="ethnic"
+                name="ethnic"
+                v-model="item.ethnic"
+                required
+              />
+            </div>
             <button
               type="button"
               class="btn btn-warning px-3 py-2"

@@ -42,7 +42,7 @@ export default {
   >
     <thead>
       <tr>
-        <th></th>
+        <!-- <th></th> -->
         <th>Stt</th>
         <th v-for="(value, index) in fields">{{ value }}</th>
         <th v-if="activeAction == true">Hành động</th>
@@ -50,7 +50,7 @@ export default {
     </thead>
     <tbody>
       <tr v-for="(item, index) in items">
-        <td><input type="checkbox" name="" id="" /></td>
+        <!-- <td><input type="checkbox" name="" id="" /></td> -->
         <td>{{ index + 1 }}</td>
         <td v-for="(label, index1) in labels">{{ item[label] }}</td>
         <td v-if="activeAction == true">

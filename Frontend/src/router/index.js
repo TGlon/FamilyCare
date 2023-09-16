@@ -8,6 +8,11 @@ const routes = [
     component: () => import("../../src/Login.vue"),
   },
   {
+    path: "/signup",
+    name: "SignUp",
+    component: () => import("../../src/signup.vue")
+  },
+  {
     path: "/",
     component: () => import("../../src/HomePage.vue"),
     meta: { requiresAuth: true }, // Bạn có thể sử dụng meta để đánh dấu các trang yêu cầu xác thực
@@ -32,6 +37,26 @@ const routes = [
         name: "HealthRecords",
         component: () => import('../views/health_records/index.vue'),
       },
+      {
+        path: "/appointment",
+        name: "Appointments",
+        component: () => import('../views/appointment/index.vue'),
+      },
+      {
+        path: "/vaccination",
+        name: "Vaccinations",
+        component: () => import('../views/vaccination/index.vue'),
+      },
+      {
+        path: "/medical_history",
+        name: "Medicals",
+        component: () => import('../views/medical/index.vue'),
+      },
+      {
+        path: "/setting",
+        name: "Settings",
+        component: () => import('../views/setting/index.vue'),
+      }
     ],
   },
 ];

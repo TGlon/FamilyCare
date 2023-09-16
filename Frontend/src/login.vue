@@ -3,7 +3,7 @@
     <div
       class="row justify-content-center align-items-center vh-100"
       style="
-        background-image: url(https://st2.depositphotos.com/36924814/46071/i/450/depositphotos_460713580-stock-photo-medical-health-blue-cross-neon.jpg);
+        background-image: url(https://b-f10-zpcloud.zdn.vn/768613244879345981/ad9e234321b1f4efada0.jpg);
         background-repeat: no-repeat;
         background-size: 100% 100%;
       "
@@ -86,8 +86,9 @@
                 Đăng Nhập
               </button>
               <p style="color: aliceblue; font-weight: bold; margin-top: 15px">
-                Cần một tài khoản? <a href="" style="color: #7091f5">Đăng Ký</a>
-              </p>
+  Cần một tài khoản? <router-link to="/signup" style="color: #7091f5">Đăng Ký</router-link>
+</p>
+
             </form>
           </div>
         </div>

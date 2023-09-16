@@ -83,9 +83,6 @@
         />
       </div>
     </div>
-    <!-- {{ data.itemAdd }}
-    {{ data.relationship }}
-    {{ data.familyadd }} -->
     <!-- Table -->
     <Table
       :items="setPages"
@@ -143,7 +140,7 @@ import Edit from "../family/edit.vue";
 import { reactive, computed, onBeforeMount } from "vue";
 import {
   http_create,
-  http_getAll,
+  http_update,
   http_getOne,
   http_deleteOne,
   http_getAllByUserId,
@@ -249,19 +246,6 @@ export default {
     });
 
     // Methods
-    // const create = async () => {
-    //   console.log(data.itemAdd);
-    //   const result = await http_create(User, data.itemAdd);
-    //   console.log("result", result);
-    //   if (!result.error) {
-    //     alert_success(
-    //       `Thêm Thành Viên`,
-    //       `Thành viên ${result.document.name} đã được tạo thành công.`)
-    //     refresh();
-    //   } else if (result.error) {
-    //     alert_error(`Thêm Thành Viên`, `${result.msg}`);
-    //   }
-    // };
     const create = async () => {
       try {
         // Step 1: Create a user entry in the User table
@@ -318,24 +302,41 @@ export default {
         refresh();
       }
     };
-    const edit = () => {
-      console.log("edit");
+    const edit = async (editedUserData) => {
+      try {
+        const updatedUserResult = await http_update(
+          User,
+          editedUserData._id,
+          editedUserData
+        );
+        // console.log(updatedUserResult);
+        if (!updatedUserResult.error) {
+          alert_success(
+            `Cập Nhật Thành Viên`,
+            `Thông tin thành viên đã được cập nhật thành công.`
+          );
+          refresh();
+        } else {
+          alert_error(`Cập Nhật Thành Viên`, `${updatedUserResult.msg}`);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     };
+
     const update = (item) => {
       console.log("updating", item);
     };
     const refresh = async () => {
-      // Bước 1: Lấy UserId từ sessionStorage
       const loggedInUserId = sessionStorage.getItem("UserId");
       try {
-        // Bước 2: Tìm tất cả FamilyIds liên quan đến UserId đăng nhập trong bảng User_Family
         data.matchingUserFamilies = await http_getAllByUserId(
           User_Family,
           loggedInUserId
         );
-        console.log("mactchinguserfamily:", data.matchingUserFamilies);
+        // console.log("mactchinguserfamily:", data.matchingUserFamilies);
       } catch (error) {
-        console.log("kh có", error);
+        console.log("Lỗi", error);
       }
       // Tạo một mảng mới để lưu trữ tất cả các FamilyId
       const familyIds = [];
@@ -344,7 +345,7 @@ export default {
         familyIds.push(item.FamilyId);
       });
       // In ra tất cả các _id của FamilyId
-      console.log("FamilyIds:", familyIds);
+      // console.log("FamilyIds:", familyIds);
       // Tạo một mảng tạm để lưu trữ các thông tin người dùng
       const temporaryUserArray = [];
       // Lặp qua từng FamilyId trong mảng familyIds
@@ -362,14 +363,22 @@ export default {
             userIds.push(document.UserId);
           });
           // console.log(`UserIds for FamilyId ${familyId}:`, userIds);
-          // Lặp qua từng UserId và thực hiện findOne
           for (const userId of userIds) {
             try {
-              // Gọi hàm http_getOne để lấy thông tin người dùng
               const user = await http_getOne(User, userId);
-
+              const userRelationship = await http_getAllByUserId(
+                User_Family,
+                userId
+              );
+              const relationships = userRelationship.map(
+                (item) => item.relationship
+              );
+              const userWithRelationship = {
+                user,
+                relationships,
+              };
               // Thêm thông tin người dùng vào mảng tạm thời
-              temporaryUserArray.push(user);
+              temporaryUserArray.push(userWithRelationship);
             } catch (error) {
               console.error(`Error finding User with UserId ${userId}:`, error);
             }
@@ -378,15 +387,34 @@ export default {
           console.error(`Error for FamilyId ${familyId}:`, error);
         }
       }
+      data.items = temporaryUserArray.map((userWithRelationship) => {
+        // Lấy thông tin user từ userWithRelationship
+        const { user, relationships } = userWithRelationship;
+        return {
+          _id: user._id,
+          name: user.name,
+          gender: user.gender,
+          birthday: user.birthday,
+          address: user.address,
+          passport: user.passport,
+          digital_identity: user.digital_identity,
+          email: user.email,
+          ethnic: user.ethnic,
+          nation: user.nation,
+          insurance: user.insurance,
+          phone: user.phone,
+          relationship: relationships[0],
+        };
+      });
       // Nối (concatenate) mảng tạm vào mảng data.items
-      data.items = data.items.concat(temporaryUserArray);
+      // data.items = data.items.concat(temporaryUserArray);
       // Loại bỏ các phần tử trùng lặp dựa trên trường Passport
       data.items = data.items.filter((user, index, self) => {
         // Sử dụng indexOf để kiểm tra xem user hiện tại có trùng với các user trước đó không
         return index === self.findIndex((u) => u.name === user.name);
       });
 
-      console.log("data:", data.items);
+      // console.log("data:", data.items);
     };
 
     // Hàm callback được gọi trước khi component được mount (load)
@@ -448,6 +476,6 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999999999; /* Ensure the modal is on top of other content */
+  z-index: 999,1; /* Ensure the modal is on top of other content */
 }
 </style>

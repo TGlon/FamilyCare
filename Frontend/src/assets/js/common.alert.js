@@ -9,6 +9,7 @@ export const alert_success = (title, text) => {
       didOpen: () => {
         const popup = Swal.getPopup();
         popup.style.border = "2px solid #fff";
+        popup.style.zIndex = "99999999";
       },
     });
   };

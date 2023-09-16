@@ -238,6 +238,7 @@ exports.update = async (req, res, next) => {
       return res.send({
         error: false,
         msg: "Dữ liệu đã được thay đổi thành công.",
+        document
       });
     } else {
       return res.send({
