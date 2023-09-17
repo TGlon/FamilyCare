@@ -3,7 +3,7 @@
     <div
       class="row justify-content-center align-items-center vh-100"
       style="
-        background-image: url(https://b-f10-zpcloud.zdn.vn/768613244879345981/ad9e234321b1f4efada0.jpg);
+        background-image: url(https://images.pexels.com/photos/4386466/pexels-photo-4386466.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2);
         background-repeat: no-repeat;
         background-size: 100% 100%;
       "
@@ -189,6 +189,7 @@ export default {
   border-radius: 10px;
   width: 550px;
   height: 600px;
+  opacity: 0.95;
 }
 
 .btn-primary {

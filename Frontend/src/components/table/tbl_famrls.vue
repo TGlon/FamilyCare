@@ -43,7 +43,7 @@ export default {
     <thead>
       <tr>
         <!-- <th></th> -->
-        <th>Stt</th>
+        <th>STT</th>
         <th v-for="(value, index) in fields">{{ value }}</th>
         <th v-if="activeAction == true">Hành động</th>
       </tr>

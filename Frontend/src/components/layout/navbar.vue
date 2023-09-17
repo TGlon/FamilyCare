@@ -1,19 +1,15 @@
 <script>
-import { ref, defineEmits, inject, reactive , onUnmounted} from "vue";
+import { ref, defineEmits, inject, reactive, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { alert_delete } from "../../assets/js/common.alert";
 export default {
   props: {},
   setup(props, ctx) {
-    const showSearch = ref(false);
+    // const showSearch = ref(false);
     const data = reactive({
       UserName: sessionStorage.getItem("UserName"),
       role: sessionStorage.getItem("role"),
     });
-    // Phương thức để đảo ngược trạng thái của showSearch
-    const toggleSearch = () => {
-      showSearch.value = !showSearch.value;
-    };
     // const emit = inject("emit");
     // const updateMenuResponsive = () => {
     //   console.log("starting");
@@ -60,13 +56,13 @@ export default {
     return {
       data,
       // updateMenuResponsive,
-      showSearch,
-      toggleSearch,
+      // showSearch,
+      // toggleSearch,
       logout,
       toggleDropdown,
       showDropdown,
       selectRef1,
-      handleClickOutside1
+      handleClickOutside1,
     };
   },
 };
@@ -90,7 +86,7 @@ export default {
       </span></a
     >
     <div class="d-flex align-content-center justify-content-between">
-      <div
+      <!-- <div
         v-if="showSearch"
         id="search-box"
         class="text-dark d-flex align-items-center"
@@ -104,7 +100,11 @@ export default {
         >
           search
         </span></a
-      >
+      > -->
+      <router-link to="/" class="text-dark d-flex align-items-center">
+  <span class="material-symbols-outlined cursor-pointer">home</span>
+</router-link>
+
       <a class="text-dark d-flex align-items-center mx-2"
         ><span class="material-symbols-outlined cursor-pointer">
           translate
@@ -120,8 +120,11 @@ export default {
           notifications
         </span></a
       >
-      <div class="d-flex align-content-center mr-3 my-1 cursor-pointer" @click="toggleDropdown"
-        ref="selectRef1">
+      <div
+        class="d-flex align-content-center mr-3 my-1 cursor-pointer"
+        @click="toggleDropdown"
+        ref="selectRef1"
+      >
         <img
           class="rounded-circle avatar cursor-pointer"
           src="https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/358147763_2013950775621335_4436040130510339882_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a2f6c7&_nc_ohc=xzQD5W82k2MAX_USJZX&_nc_ht=scontent.fsgn2-3.fna&oh=00_AfBuin_bF6fhd67wbij5fCv-Hp_JFKYc6g2iqUAHapoRAQ&oe=64FA5706"
@@ -131,7 +134,9 @@ export default {
           class="d-xl-flex color-dark d-none flex-column align-items-center justify-content-center ml-2"
         >
           <span class="size-14">{{ data.UserName }}</span>
-          <span class="size-14" v-if="data.role === 'Admin'">{{ data.role }}</span>
+          <span class="size-14" v-if="data.role === 'Admin'">{{
+            data.role
+          }}</span>
         </div>
       </div>
     </div>

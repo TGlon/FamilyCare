@@ -50,7 +50,7 @@ export default {
   >
     <thead>
       <tr>
-        <!-- <th><span class="size-16">Stt</span></th> -->
+        <th><span class="size-16">STT</span></th>
         <th v-for="(value, index) in fields" :key="index">
           <span class="size-16">{{ value }}</span>
         </th>
@@ -59,13 +59,13 @@ export default {
     </thead>
     <tbody>
       <tr class="size-16" v-for="(item, index) in items">
-        <!-- <td class="size-16">{{ startRow + index }}</td> -->
+        <td class="size-16">{{ startRow + index }}</td>
         <td class="size-16" v-for="(label, index1) in labels">
           {{ item[label] }}
         </td>
         <td v-if="activeAction == true">
           <div class="d-flex align-items-center">
-            <button
+            <!-- <button
               v-if="showActionList[0] == true"
               type="button"
               class="format-btn"
@@ -79,7 +79,7 @@ export default {
               >
                 visibility
               </span>
-            </button>
+            </button> -->
             <button
               v-if="showActionList[1] == true"
               type="button"
