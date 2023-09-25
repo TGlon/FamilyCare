@@ -7,7 +7,7 @@ const config = {
 };
 
 // Khởi tạo kết nối database
-const sequelize = new Sequelize("luanvan", "root", "KvdLgdtVL8", {
+const sequelize = new Sequelize("luanvantotnghiep", "root", "KvdLgdtVL8", {
   host: "localhost",
   dialect: "mysql",
   // port: 6000,

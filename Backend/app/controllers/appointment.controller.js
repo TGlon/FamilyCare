@@ -2,7 +2,13 @@ const { Appointment } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
-  if (Object.keys(req.body).length === 6) {
+  if (
+    req.body.UserId &&
+    req.body.appointment_type &&
+    req.body.start_date &&
+    req.body.place &&
+    req.body.status
+  ) {
     const {
       UserId,
       appointment_type,
@@ -11,6 +17,7 @@ exports.create = async (req, res, next) => {
       status,
       note,
     } = req.body;
+
     const appointments = await Appointment.findAll();
     for (let value of appointments) {
       if (
@@ -18,8 +25,7 @@ exports.create = async (req, res, next) => {
         value.start_date == start_date &&
         value.place == place &&
         value.status == status &&
-        value.note == note &&
-        value.UserId == UserId 
+        value.UserId == UserId
       ) {
         return res.send({
           error: true,
@@ -27,14 +33,15 @@ exports.create = async (req, res, next) => {
         });
       }
     }
+
     try {
       const document = await Appointment.create({
-        appointment_type: req.body.appointment_type,
-        start_date: req.body.start_date,
-        place: req.body.place,
-        status: req.body.status,
-        note: req.body.note,
-        UserId: req.body.UserId,
+        appointment_type,
+        start_date,
+        place,
+        status,
+        note: note || '', // Sử dụng note hoặc chuỗi rỗng nếu note không được cung cấp
+        UserId,
       });
       return res.send({
         error: false,
@@ -56,10 +63,11 @@ exports.create = async (req, res, next) => {
   }
 };
 
+
 exports.findAll = async (req, res, next) => {
   try {
     const documents = await Appointment.findAll({});
-    return res.send(documents);
+    return res.send(documents.sort((a, b) => new Date(b.start_date) - new Date(a.start_date)));
   } catch (error) {
     console.log(error);
     return next(createError(400, "Error finding all appointments!"));

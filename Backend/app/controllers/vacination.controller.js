@@ -1,13 +1,14 @@
-const { Vaccination_History } = require("../models/index.model.js");
+const { Vaccination_History, Appointment, Vaccine_Types } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
-  if (Object.keys(req.body).length === 6) {
-    const { vaccine, doses, doctor, note, AppointmentId, VaccineTypeId } =
+  if (Object.keys(req.body).length === 7) {
+    const { vaccination, vaccine, doses, doctor, note, AppointmentId, VaccineTypeId } =
       req.body;
     const vaccinations = await Vaccination_History.findAll();
     for (let value of vaccinations) {
       if (
+        value.vaccination == vaccination &&
         value.vaccine == vaccine &&
         value.doses == doses &&
         value.doctor == doctor &&
@@ -23,6 +24,7 @@ exports.create = async (req, res, next) => {
     }
     try {
       const document = await Vaccination_History.create({
+        vaccination: req.body.vaccination,
         vaccine: req.body.vaccine,
         doses: req.body.doses,
         doctor: req.body.doctor,
@@ -52,8 +54,23 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Vaccination_History.findAll({});
-    return res.send(documents);
+    const documents = await Vaccination_History.findAll({
+      include: [
+        {
+          model: Appointment, // Bảng bạn muốn join
+          attributes: ['start_date'], // Chọn thuộc tính bạn muốn hiển thị
+        },
+        {
+          model: Vaccine_Types,
+          attributes: ['name'],
+        }
+      ],
+    });
+    return res.send(documents.sort((a, b) => {
+      const startDateA = a.Appointment.start_date;
+      const startDateB = b.Appointment.start_date;
+      return new Date(startDateB) - new Date(startDateA);
+    }));
   } catch (error) {
     console.log(error);
     return next(createError(400, "Error finding all vaccination history!"));
@@ -116,10 +133,63 @@ exports.deleteAll = async (req, res, next) => {
   }
 };
 
+// exports.update = async (req, res, next) => {
+//   console.log("Update", req.body);
+//   const { vaccine, doses, doctor, note, AppointmentId, VaccineTypeId } =
+//     req.body;
+//   try {
+//     let vaccinations = [
+//       await Vaccination_History.findOne({
+//         where: {
+//           _id: req.params.id,
+//         },
+//       }),
+//     ];
+
+//     vaccinations = vaccinations.filter((value, index) => {
+//       return (
+//         value.vaccine == vaccine &&
+//         value.doses == doses &&
+//         value.doctor == doctor &&
+//         value.note == note &&
+//         value.AppointmentId == AppointmentId &&
+//         value.VaccineTypeId == VaccineTypeId
+//       );
+//     });
+
+//     if (vaccinations.length == 0) {
+//       const document = await Vaccination_History.update(
+//         {
+//           vaccine: req.body.vaccine,
+//           doses: req.body.doses,
+//           doctor: req.body.doctor,
+//           note: req.body.note,
+//           AppointmentId: req.body.AppointmentId,
+//           VaccineTypeId: req.body.VaccineTypeId,
+//         },
+//         { where: { _id: req.params.id }, returning: true }
+//       );
+//       return res.send({
+//         error: false,
+//         msg: "Dữ liệu đã được thay đổi thành công.",
+//       });
+//     } else {
+//       return res.send({
+//         error: true,
+//         msg: "Dữ liệu chưa được thay đổi.",
+//       });
+//     }
+//   } catch (error) {
+//     return next(createError(400, "Error update"));
+//   }
+// };
 exports.update = async (req, res, next) => {
   console.log("Update", req.body);
-  const { vaccine, doses, doctor, note, AppointmentId, VaccineTypeId } =
-    req.body;
+  const { vaccination,vaccine, doses, doctor, AppointmentId, VaccineTypeId } = req.body;
+  
+  // Xác định giá trị mặc định cho trường "note" nếu không được cung cấp trong req.body
+  const note = req.body.note || '';
+
   try {
     let vaccinations = [
       await Vaccination_History.findOne({
@@ -131,11 +201,12 @@ exports.update = async (req, res, next) => {
 
     vaccinations = vaccinations.filter((value, index) => {
       return (
+        value.vaccination == vaccination &&
         value.vaccine == vaccine &&
         value.doses == doses &&
         value.doctor == doctor &&
-        value.note == note &&
         value.AppointmentId == AppointmentId &&
+        value.note == note &&
         value.VaccineTypeId == VaccineTypeId
       );
     });
@@ -143,12 +214,13 @@ exports.update = async (req, res, next) => {
     if (vaccinations.length == 0) {
       const document = await Vaccination_History.update(
         {
-          vaccine: req.body.vaccine,
-          doses: req.body.doses,
-          doctor: req.body.doctor,
-          note: req.body.note,
-          AppointmentId: req.body.AppointmentId,
-          VaccineTypeId: req.body.VaccineTypeId,
+          vaccination,
+          vaccine,
+          doses,
+          doctor,
+          note, // Sử dụng giá trị đã xác định ở trên
+          AppointmentId,
+          VaccineTypeId,
         },
         { where: { _id: req.params.id }, returning: true }
       );
@@ -166,3 +238,4 @@ exports.update = async (req, res, next) => {
     return next(createError(400, "Error update"));
   }
 };
+

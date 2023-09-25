@@ -59,7 +59,7 @@
       <div class="d-flex align-items-start">
         <button
           type="button"
-          class="btn btn-outline-danger mr-3"
+          class="btn btn-outline-danger "
           data-toggle="modal"
           data-target="#model-delete-all"
           @click="deleteMany()"
@@ -67,14 +67,14 @@
           <span id="delete-all" class="mx-2">Xoá</span>
         </button>
         <!-- <DeleteAll :items="data.items" /> -->
-        <button
+        <!-- <button
           type="button"
           class="btn btn-outline-primary"
           data-toggle="modal"
           data-target="#modal-addmember"
         >
           <span id="add" class="mx-2">Thêm</span>
-        </button>
+        </button> -->
         <Add
           :item="data.itemAdd"
           :mqh="data.relationship"
@@ -87,19 +87,15 @@
     <Table
       :items="setPages"
       :fields="[
+        'Tiêm Ngừa',
         'Loại Tiêm Ngừa',
         'Vaccine',
+        'Ngày Tiêm',
         'Liều Lượng',
         'Bác Sĩ',
         'Ghi Chú',
       ]"
-      :labels="[
-        'vaccinetype',
-        'vaccine',
-        'doses',
-        'doctor',
-        'note',
-      ]"
+      :labels="['vaccination','name', 'vaccine', 'start_date', 'doses', 'doctor', 'note']"
       @delete="(value) => deleteOne(value)"
       @edit="
         (value, value1) => (
@@ -117,7 +113,12 @@
       @update:currentPage="(value) => (data.currentPage = value)"
       class="mx-3"
     />
-    
+    <Edit
+      :item="data.editValue"
+      :class="[data.activeEdit ? 'show-modal' : 'd-none']"
+      @cancel="data.activeEdit = false"
+      @edit="edit(data.editValue)"
+    />
   </div>
 </template>
 
@@ -127,27 +128,27 @@ import Search from "../../components/form/search.vue";
 import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import { reactive, computed, onBeforeMount } from "vue";
+import Vaccination from "../../services/vaccination.service";
 import {
   http_create,
   http_update,
   http_getOne,
   http_deleteOne,
-  http_getAllByUserId,
-  http_getAllUserIdByFamilyId,
+  http_getAll,
 } from "../../assets/js/common.http";
-import User from "../../services/user.service";
-import User_Family from "../../services/user_family.service";
 import {
   alert_delete,
   alert_success,
   alert_error,
 } from "../../assets/js/common.alert";
+import Edit from "./edit.vue";
 export default {
   components: {
     Table,
     Search,
     Select,
     Pagination,
+    Edit,
   },
   setup() {
     const data = reactive({
@@ -160,15 +161,23 @@ export default {
       currentPage: 1,
       searchText: "",
       activeMenu: 1,
-      
+      activeEdit: false,
+      editValue: {
+        _id: "",
+        vaccine: "",
+        doses: "",
+        doctor: "",
+        note: "",
+      },
     });
     // computed
     const toString = computed(() => {
       console.log("Starting search");
       return data.items.map((value, index) => {
-        return [value.name].join("").toLocaleLowerCase();
+        return [value.vaccination].join("").toLocaleLowerCase();
       });
     });
+
     const filter = computed(() => {
       return data.items.filter((value, index) => {
         return toString.value[index].includes(
@@ -196,12 +205,21 @@ export default {
         } else data.numberOfPages = setNumberOfPages.value;
         data.startRow = (data.currentPage - 1) * data.entryValue + 1;
         data.endRow = data.currentPage * data.entryValue;
-        return filtered.value.filter((item, index) => {
-          return (
-            index + 1 > (data.currentPage - 1) * data.entryValue &&
-            index + 1 <= data.currentPage * data.entryValue
-          );
-        });
+
+        return filtered.value
+          .map((item) => {
+            return {
+              ...item,
+              start_date: item.Appointment ? item.Appointment.start_date : "-",
+              name: item.Vaccine_Type ? item.Vaccine_Type.name : "",
+            };
+          })
+          .filter((item, index) => {
+            return (
+              index + 1 > (data.currentPage - 1) * data.entryValue &&
+              index + 1 <= data.currentPage * data.entryValue
+            );
+          });
       } else return data.items.value;
     });
 
@@ -209,19 +227,49 @@ export default {
     const create = async () => {
       console.log(create);
     };
-    const edit = async (editedUserData) => {
-      console.log(edit);
-    };
 
+    const edit = async () => {
+      const result = await http_update(
+        Vaccination,
+        data.editValue._id,
+        data.editValue
+      );
+      if (!result.error) {
+        alert_success(`Sửa Lịch Sử Tiêm Ngừa`, `${result.msg}`);
+        refresh();
+      } else if (result.error) {
+        alert_error(`Sửa Lịch Sử Tiêm Ngừa`, `${result.msg}`);
+      }
+    };
+    const deleteOne = async (_id) => {
+      const vaccination = await http_getOne(Vaccination, _id);
+      const isConfirmed = await alert_delete(
+        `Xoá Lịch Hẹn`,
+        `Bạn đã có chắc chắn muốn xóa lịch sử tiêm ngừa`
+      );
+      if (isConfirmed == true) {
+        const result = await http_deleteOne(Vaccination, _id);
+        alert_success(`Xoá Lịch Hẹn`, result.msg);
+        refresh();
+      }
+    };
     const update = (item) => {
       console.log("updating", item);
     };
+    const refresh = async () => {
+      data.items = await http_getAll(Vaccination);
+      // console.log(data.items);
+    };
+    onBeforeMount(async () => {
+      refresh();
+    });
     return {
       data,
       setPages,
       edit,
       update,
       create,
+      deleteOne,
     };
   },
 };
@@ -269,6 +317,6 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999,1; /* Ensure the modal is on top of other content */
+  z-index: 999, 1; /* Ensure the modal is on top of other content */
 }
 </style>

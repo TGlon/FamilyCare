@@ -691,6 +691,21 @@ const Appointment = sequelize.define("Appointment", {
 });
 const Vaccination_History = sequelize.define("Vaccination_History", {
   _id: setPrimary,
+  vaccination: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: {
+        msg: "Tên vaccination không được bỏ trống.",
+      }
+    },
+    get() {
+      return getDecrypt("vaccination", this);
+    },
+    set(value) {
+      setEncrypt(value, "vaccination", this);
+    },
+  },
   vaccine: {
     type: DataTypes.TEXT,
     allowNull: false,
@@ -933,24 +948,24 @@ const Medicine = sequelize.define("Medicine", {
     },
   },
 });
-const Medicine_Type = sequelize.define("Medicine_Type", {
-  _id: setPrimary,
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: {
-        msg: "Tên loại thuốc không được bỏ trống.",
-      }
-    },
-    get() {
-      return getDecrypt("name", this);
-    },
-    set(value) {
-      setEncrypt(value, "name", this);
-    },
-  },
-});
+// const Medicine_Type = sequelize.define("Medicine_Type", {
+//   _id: setPrimary,
+//   name: {
+//     type: DataTypes.TEXT,
+//     allowNull: false,
+//     validate: {
+//       notEmpty: {
+//         msg: "Tên loại thuốc không được bỏ trống.",
+//       }
+//     },
+//     get() {
+//       return getDecrypt("name", this);
+//     },
+//     set(value) {
+//       setEncrypt(value, "name", this);
+//     },
+//   },
+// });
 const Notification = sequelize.define("Notification", {
   _id: setPrimary,
   title: {
@@ -1066,47 +1081,67 @@ Appointment.belongsTo(User, {
 // --------------------- //
 Appointment.hasMany(Vaccination_History, {
   foreignKey: "AppointmentId",
-  onDelete: "CASCADE",
+  onDelete: "SET NULL",
   onUpdate: "CASCADE",
 });
 Vaccination_History.belongsTo(Appointment, {
   foreignKey: "AppointmentId",
-  onDelete: "CASCADE",
+  onDelete: "SET NULL",
   onUpdate: "CASCADE",
 });
+// Vaccination_History.hasMany(Appointment, {
+//   foreignKey: "Vaccination_HistoryId",
+//   onDelete: "SET NULL",
+//   onUpdate: "CASCADE",
+// });
+// Appointment.belongsTo(Vaccination_History, {
+//   foreignKey: "Vaccination_HistoryId",
+//   onDelete: "SET NULL",
+//   onUpdate: "CASCADE",
+// });
 // --------------------- //
 Vaccine_Types.hasMany(Vaccination_History, {
   foreignKey: "VaccineTypeId",
-  onDelete: "CASCADE",
+  // onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
 Vaccination_History.belongsTo(Vaccine_Types, {
   foreignKey: "VaccineTypeId",
-  onDelete: "CASCADE",
+  // onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
 // --------------------- //
 Appointment.hasMany(Medical_History, {
   foreignKey: "AppointmentId",
-  onDelete: "CASCADE",
+  // onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
 Medical_History.belongsTo(Appointment, {
   foreignKey: "AppointmentId",
-  onDelete: "CASCADE",
+  // onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
+// Medical_History.hasMany(Appointment, {
+//   foreignKey: "Medical_HistoryId",
+//   // onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// });
+// Appointment.belongsTo(Medical_History, {
+//   foreignKey: "Medical_HistoryId",
+//   // onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// });
 // --------------------- //
-Medicine_Type.hasMany(Medicine, {
-  foreignKey: "MedicineTypeId",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-});
-Medicine.belongsTo(Medicine_Type, {
-  foreignKey: "MedicineTypeId",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-});
+// Medicine_Type.hasMany(Medicine, {
+//   foreignKey: "MedicineTypeId",
+//   // onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// });
+// Medicine.belongsTo(Medicine_Type, {
+//   foreignKey: "MedicineTypeId",
+//   // onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// });
 // ------------------------------ //
 Role.hasMany(Account, {
   foreignKey: "roleId",
@@ -1209,7 +1244,7 @@ Vaccination_History.sync();
 Vaccine_Types.sync();
 Medical_History.sync();
 Medicine.sync();
-Medicine_Type.sync();
+// Medicine_Type.sync();
 Notification.sync();
 Role.sync();
 Permission.sync();
@@ -1229,7 +1264,7 @@ module.exports = {
   Vaccine_Types,
   Medical_History,
   Medicine,
-  Medicine_Type,
+  // Medicine_Type,
   Notification,
   Role,
   Role_Permission,

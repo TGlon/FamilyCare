@@ -117,6 +117,10 @@ export default {
   border-right: 0;
   padding: 8px;
 }
+.my-table td {
+  font-size: 15px; /* Adjust the font size as needed */
+}
+
 
 .my-table th {
   font-weight: 900;

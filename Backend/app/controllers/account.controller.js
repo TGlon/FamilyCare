@@ -232,3 +232,29 @@ exports.login = async (req, res, next) => {
       console.log(error);
   }
 }
+
+exports.findAccountByUserId = async (req, res, next) => {
+  try {
+    const { UserId } = req.params; // Lấy giá trị UserId từ tham số đường dẫn
+    const accounts = await Account.findAll({
+      where: {
+        UserId: UserId,
+      },
+    });
+
+    if (accounts.length === 0) {
+      return res.send({
+        error: true,
+        msg: 'Không tìm thấy tài khoản nào cho UserId này.',
+      });
+    }
+
+    return res.send({
+      error: false,
+      accounts: accounts,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(createError(400, 'Lỗi khi tìm kiếm tài khoản theo UserId.'));
+  }
+};

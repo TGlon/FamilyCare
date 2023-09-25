@@ -1,7 +1,7 @@
 import createApiClient from "./api.service";
 
-class AccountService {
-    constructor(baseUrl = "/api/accounts") {
+class VaccinationService {
+    constructor(baseUrl = "/api/vaccinationhistories") {
         this.api = createApiClient(baseUrl);
     }
     async getAll() {
@@ -22,10 +22,6 @@ class AccountService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
-    async findByUserId(UserId) {
-        return (await this.api.get(`/find-by-userid/${UserId}`)).data;
-      }
-      
 }
 
-export default new AccountService();
+export default new VaccinationService();

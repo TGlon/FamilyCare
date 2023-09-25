@@ -3,11 +3,25 @@
     <!-- Menu -->
     <div class="d-flex menu my-3 mx-3 justify-content-end">
       <router-link
-        :to="{ name: '' }"
+        :to="{ name: 'HealthRecords' }"
         @click="activeMenu = 1"
         :class="[activeMenu == 1 ? 'active-menu' : 'none-active-menu']"
       >
         <span class="size-17">Tổng Quan</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'Allergys' }"
+        @click="activeMenu = 2"
+        :class="[activeMenu == 2 ? 'active-menu' : 'none-active-menu']"
+      >
+        <span class="size-17">Dị Ứng</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'Chronics' }"
+        @click="activeMenu = 3"
+        :class="[activeMenu == 3 ? 'active-menu' : 'none-active-menu']"
+      >
+        <span class="size-17">Bệnh Mãn Tính</span>
       </router-link>
       <!-- <router-link
           :to="{ name: '' }"
@@ -83,7 +97,7 @@
           class="btn btn-outline-danger mr-3"
           data-toggle="modal"
           data-target="#model-delete-all"
-          @click="deleteMany()"
+          @click="deleteAll()"
         >
           <span id="delete-all" class="mx-2">Xoá</span>
         </button>
@@ -157,8 +171,9 @@ import {
   http_getAll,
   http_deleteOne,
   http_getOne,
-  http_update
+  http_update,
 } from "../../assets/js/common.http";
+import { formatDate } from "../../assets/js/common.format";
 import Health_Statistic from "../../services/health_statistics.service";
 import {
   alert_success,
@@ -194,7 +209,7 @@ export default {
         height: "",
         blood_pressure: "",
         blood_type: "",
-        heart_rate: ""
+        heart_rate: "",
       },
     });
     // computed
@@ -280,12 +295,39 @@ export default {
       }
     };
     const edit = async () => {
-      const result = await http_update(Health_Statistic, data.editValue._id, data.editValue);
+      const result = await http_update(
+        Health_Statistic,
+        data.editValue._id,
+        data.editValue
+      );
       if (!result.error) {
         alert_success(`Sửa Hồ Sơ Sức Khỏe`, `${result.msg}`);
         refresh();
       } else if (result.error) {
         alert_error(`Sửa Hồ Sơ Sức Khỏe`, `${result.msg}`);
+      }
+    };
+    const deleteAll = async () => {
+      const isConfirmed = await alert_delete(
+        "Xoá Tất Cả Hồ Sơ Sức Khỏe",
+        "Bạn có chắc chắn muốn xoá tất cả hồ sơ sức khỏe?"
+      );
+      if (isConfirmed) {
+        // Lặp qua data.items và xóa tất cả
+        if(data.items.length == 0){
+          alert_error("Xoá Tất Cả Hồ Sơ Sức Khỏe", "Không có hồ sơ nào để xóa!")
+        }
+        for (const item of data.items) {
+          const result = await http_deleteOne(Health_Statistic, item._id);
+          if (!result.error) {
+            console.log(`Đã xoá hồ sơ ngày ${item.recording_date}`);
+          } else {
+            console.error(
+              `Lỗi khi xoá hồ sơ ngày ${item.recording_date}: ${result.msg}`
+            );
+          }
+        }
+        await refresh();
       }
     };
     const refresh = async () => {
@@ -300,7 +342,8 @@ export default {
       setPages,
       create,
       deleteOne,
-      edit
+      edit,
+      deleteAll
     };
   },
 };

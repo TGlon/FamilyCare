@@ -57,7 +57,7 @@
         />
       </div>
       <div class="d-flex align-items-start">
-        <button
+        <!-- <button
           type="button"
           class="btn btn-outline-danger mr-3"
           data-toggle="modal"
@@ -65,7 +65,7 @@
           @click="deleteMany()"
         >
           <span id="delete-all" class="mx-2">Xoá</span>
-        </button>
+        </button> -->
         <!-- <DeleteAll :items="data.items" /> -->
         <button
           type="button"
@@ -73,7 +73,7 @@
           data-toggle="modal"
           data-target="#modal-addmember"
         >
-          <span id="add" class="mx-2">Thêm</span>
+          <span id="add" class="mx-2">Thêm Thành Viên</span>
         </button>
         <Add
           :item="data.itemAdd"
@@ -244,6 +244,7 @@ export default {
         });
       } else return data.items.value;
     });
+    
 
     // Methods
     const create = async () => {

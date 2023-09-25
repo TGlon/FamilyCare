@@ -1,5 +1,5 @@
 <script>
-import { ref, defineEmits, inject, reactive, onUnmounted } from "vue";
+import { ref, defineEmits, inject, reactive, onUnmounted, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { alert_delete } from "../../assets/js/common.alert";
 export default {
@@ -47,12 +47,65 @@ export default {
         toggleDropdown1();
       }
     };
-
+    onMounted(async () => {
+      document.addEventListener("click", handleClickOutside1);
+    });
     // check(token);
     onUnmounted(() => {
       // document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("click", handleClickOutside1);
     });
+    const getAvatarUrl = (name) => {
+      if (name) {
+        const words = name.split(" ");
+        const lastWord = words[words.length - 1];
+        const initials = lastWord.charAt(0).toUpperCase();
+        const color = getAvatarColor(initials);
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        const size = 50;
+
+        canvas.width = size;
+        canvas.height = size;
+
+        context.beginPath();
+        context.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
+        context.fillStyle = color;
+        context.fill();
+
+        context.font = `${size / 2}px sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillStyle = "#FFFFFF";
+        context.fillText(initials, size / 2, size / 2);
+
+        return canvas.toDataURL();
+      }
+      return "";
+    };
+
+    const getAvatarColor = (initials) => {
+      const colors = [
+        "#F44336",
+        "#E91E63",
+        "#9C27B0",
+        "#673AB7",
+        "#3F51B5",
+        "#2196F3",
+        "#03A9F4",
+        "#00BCD4",
+        "#009688",
+        "#4CAF50",
+        "#8BC34A",
+        "#CDDC39",
+        "#FFC107",
+        "#FF9800",
+        "#FF5722",
+      ];
+      const index = initials.charCodeAt(0) % colors.length;
+      return colors[index];
+    };
+
     return {
       data,
       // updateMenuResponsive,
@@ -63,6 +116,8 @@ export default {
       showDropdown,
       selectRef1,
       handleClickOutside1,
+      getAvatarUrl,
+      getAvatarColor,
     };
   },
 };
@@ -105,7 +160,7 @@ export default {
   <span class="material-symbols-outlined cursor-pointer">home</span>
 </router-link>
 
-      <a class="text-dark d-flex align-items-center mx-2"
+      <a class="text-dark d-flex align-items-center mx-2" 
         ><span class="material-symbols-outlined cursor-pointer">
           translate
         </span></a
@@ -125,9 +180,9 @@ export default {
         @click="toggleDropdown"
         ref="selectRef1"
       >
-        <img
-          class="rounded-circle avatar cursor-pointer"
-          src="https://scontent.fsgn2-3.fna.fbcdn.net/v/t39.30808-6/358147763_2013950775621335_4436040130510339882_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a2f6c7&_nc_ohc=xzQD5W82k2MAX_USJZX&_nc_ht=scontent.fsgn2-3.fna&oh=00_AfBuin_bF6fhd67wbij5fCv-Hp_JFKYc6g2iqUAHapoRAQ&oe=64FA5706"
+      <img
+          class="rounded-circle cursor-pointer"
+          :src="getAvatarUrl(data.UserName)"
           alt="Avatar"
         />
         <div

@@ -98,6 +98,7 @@ export default {
                 id="family"
                 name="family"
                 v-model="fam.family"
+                required
               >
                 <option
                   v-for="family in data.items"
@@ -149,7 +150,7 @@ export default {
                 >Ngày Sinh(<span style="color: red">*</span>):</label
               >
               <input
-                type="text"
+                type="date"
                 class="form-control"
                 id="birthday"
                 name="birthday"

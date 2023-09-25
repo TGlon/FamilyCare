@@ -2,8 +2,8 @@ const { Medicine } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
-  if (Object.keys(req.body).length === 6) {
-    const { name, frequency, doses, note, MedicineTypeId, MedicalHistoryId } =
+  if (Object.keys(req.body).length === 5) {
+    const { name, frequency, doses, note,  MedicalHistoryId } =
       req.body;
     const medicines = await Medicine.findAll();
     for (let value of medicines) {
@@ -12,7 +12,6 @@ exports.create = async (req, res, next) => {
         value.frequency == frequency &&
         value.doses == doses &&
         value.note == note &&
-        value.MedicineTypeId == MedicineTypeId &&
         value.MedicalHistoryId == MedicalHistoryId
       ) {
         return res.send({
@@ -27,7 +26,6 @@ exports.create = async (req, res, next) => {
         frequency: req.body.frequency,
         doses: req.body.doses,
         note: req.body.note,
-        MedicineTypeId: req.body.MedicineTypeId,
         MedicalHistoryId: req.body.MedicalHistoryId,
       });
       return res.send({
@@ -118,7 +116,7 @@ exports.deleteAll = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   console.log("Update", req.body);
-  const { name, frequency, doses, note, MedicineTypeId, MedicalHistoryId } =
+  const { name, frequency, doses, note, MedicalHistoryId } =
     req.body;
   try {
     let medicines = [
@@ -135,7 +133,6 @@ exports.update = async (req, res, next) => {
         value.frequency == frequency &&
         value.doses == doses &&
         value.note == note &&
-        value.MedicineTypeId == MedicineTypeId &&
         value.MedicalHistoryId == MedicalHistoryId
       );
     });
@@ -147,7 +144,6 @@ exports.update = async (req, res, next) => {
           frequency: req.body.frequency,
           doses: req.body.doses,
           note: req.body.note,
-          MedicineTypeId: req.body.MedicineTypeId,
           MedicalHistoryId: req.body.MedicalHistoryId,
         },
         { where: { _id: req.params.id }, returning: true }

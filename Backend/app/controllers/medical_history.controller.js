@@ -1,4 +1,4 @@
-const { Medical_History } = require("../models/index.model.js");
+const { Medical_History, Appointment } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
@@ -50,7 +50,14 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Medical_History.findAll({});
+    const documents = await Medical_History.findAll({
+      include: [
+        {
+          model: Appointment, // Bảng bạn muốn join
+          attributes: ['start_date'], // Chọn thuộc tính bạn muốn hiển thị
+        },
+      ]  
+    });
     return res.send(documents);
   } catch (error) {
     console.log(error);
@@ -116,8 +123,9 @@ exports.deleteAll = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   console.log("Update", req.body);
-  const { diagnosis, medical_condition, doctor, note, AppointmentId } =
+  const { diagnosis, medical_condition, doctor, AppointmentId } =
     req.body;
+  const note = req.body.note || '';
   try {
     let medicals = [
       await Medical_History.findOne({
@@ -143,7 +151,7 @@ exports.update = async (req, res, next) => {
           diagnosis: req.body.diagnosis,
           medical_condition: req.body.medical_condition,
           doctor: req.body.doctor,
-          note: req.body.note,
+          note: note,
           AppointmentId: req.body.AppointmentId,
         },
         { where: { _id: req.params.id }, returning: true }

@@ -3,19 +3,54 @@
     <!-- Menu -->
     <div class="d-flex menu my-3 mx-3 justify-content-end">
       <router-link
-        :to="{ name: '' }"
+        :to="{ name: 'HealthRecords' }"
         @click="activeMenu = 1"
         :class="[activeMenu == 1 ? 'active-menu' : 'none-active-menu']"
       >
-        <span class="size-17">Lịch Hẹn</span>
+        <span class="size-17">Tổng Quan</span>
       </router-link>
-      <!-- <router-link
-        :to="{ name: 'FamilyTypes' }"
+      <router-link
+        :to="{ name: 'Allergys' }"
         @click="activeMenu = 2"
         :class="[activeMenu == 2 ? 'active-menu' : 'none-active-menu']"
       >
-        <span class="size-17">Quản Lý Gia Đình</span>
-      </router-link> -->
+        <span class="size-17">Dị Ứng</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'Chronics' }"
+        @click="activeMenu = 3"
+        :class="[activeMenu == 3 ? 'active-menu' : 'none-active-menu']"
+      >
+        <span class="size-17">Bệnh Mãn Tính</span>
+      </router-link>
+      <!-- <router-link
+          :to="{ name: '' }"
+          @click="activeMenu = 2"
+          :class="[activeMenu == 2 ? 'active-menu' : 'none-active-menu']"
+        >
+          <span class="size-18">Bệnh Tật</span>
+        </router-link>
+        <router-link
+          :to="{ name: '' }"
+          @click="activeMenu = 3"
+          :class="[activeMenu == 3 ? 'active-menu' : 'none-active-menu']"
+        >
+          <span class="size-18">Tiêm Chủng</span>
+        </router-link>
+        <router-link
+          :to="{ name: '' }"
+          @click="activeMenu = 4"
+          :class="[activeMenu == 4 ? 'active-menu' : 'none-active-menu']"
+        >
+          <span class="size-18">Dị Ứng</span>
+        </router-link>
+        <router-link
+          :to="{ name: '' }"
+          @click="activeMenu = 5"
+          :class="[activeMenu == 5 ? 'active-menu' : 'none-active-menu']"
+        >
+          <span class="size-18">Bệnh Mãn Tính</span>
+        </router-link> -->
     </div>
     <!-- Filter -->
 
@@ -62,7 +97,7 @@
           class="btn btn-outline-danger mr-3"
           data-toggle="modal"
           data-target="#model-delete-all"
-          @click="deleteMany()"
+          @click="deleteAll()"
         >
           <span id="delete-all" class="mx-2">Xoá</span>
         </button>
@@ -71,32 +106,29 @@
           type="button"
           class="btn btn-outline-primary"
           data-toggle="modal"
-          data-target="#modal-addapp"
+          data-target="#modal-addchrno"
         >
           <span id="add" class="mx-2">Thêm</span>
         </button>
-        <Add
-          :item="data.itemAdd"
-          @create="create"
-        />
       </div>
+      <Add :item="data.itemAdd" @create="create" />
     </div>
     <!-- Table -->
     <Table
       :items="setPages"
       :fields="[
-        'Loại Cuộc Hẹn',
-        'Ngày Bắt Đầu',
-        'Địa Điểm',
-        'Trạng Thái',
-        'Ghi Chú',
+        'Tên Bệnh Mãn Tính',
+        'Ngày Chuẩn Đoán',
+        'Bác Sĩ Chuẩn Đoán',
+        'Tình Trạng Hiện Tại',
+        'Mô Tả',
       ]"
       :labels="[
-        'appointment_type',
-        'start_date',
-        'place',
-        'status',
-        'note',
+        'name',
+        'diagnosis_date',
+        'doctor',
+        'current_status',
+        'description',
       ]"
       @delete="(value) => deleteOne(value)"
       @edit="
@@ -125,36 +157,35 @@
 </template>
 
 <script>
-import Table from "../../components/table/tbl_famrls.vue";
+import Table from "../../components/table/tbl_health.vue";
 import Search from "../../components/form/search.vue";
 import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
-import Add from "./add.vue";
-import Edit from "./edit.vue";
+import Add from "./add_chronic.vue";
+import Edit from "./edit_chronic.vue";
 import { reactive, computed, onBeforeMount } from "vue";
 import {
   http_create,
-  http_update,
-  http_getOne,
-  http_deleteOne,
   http_getAll,
+  http_deleteOne,
+  http_getOne,
+  http_update,
 } from "../../assets/js/common.http";
-import Appointment from "../../services/appointment.service";
+import { formatDate } from "../../assets/js/common.format";
+import Chronic from "../../services/chronic.service";
 import {
-  alert_delete,
   alert_success,
   alert_error,
+  alert_delete,
 } from "../../assets/js/common.alert";
-import Vaccination from "../../services/vaccination.service";
-import Medical from "../../services/medical.service";
 export default {
   components: {
     Table,
     Search,
     Select,
-    Pagination,
     Add,
-    Edit
+    Pagination,
+    Edit,
   },
   setup() {
     const data = reactive({
@@ -171,18 +202,19 @@ export default {
       activeEdit: false,
       editValue: {
         _id: "",
-        appointment_type: "",
-        start_date: "",
-        place: "",
-        status: "",
-        note: ""
+        recording_date: "",
+        weight: "",
+        height: "",
+        blood_pressure: "",
+        blood_type: "",
+        heart_rate: "",
       },
     });
     // computed
     const toString = computed(() => {
       console.log("Starting search");
       return data.items.map((value, index) => {
-        return [value.appointment_type].join("").toLocaleLowerCase();
+        return [value.recording_date].join("").toLocaleLowerCase();
       });
     });
     const filter = computed(() => {
@@ -220,140 +252,93 @@ export default {
         });
       } else return data.items.value;
     });
-
     // Methods
     const create = async () => {
-      const UserId = sessionStorage.getItem("UserId");
-      const AppData = {
-        UserId: UserId,
-        appointment_type: data.itemAdd.appointment_type,
-        start_date: data.itemAdd.start_date,
-        place: data.itemAdd.place,
-        status: data.itemAdd.status,
-        note: data.itemAdd.note
-      }
-      // console.log(create);
-      const result = await http_create(Appointment, AppData);
-      if(!result.error){
-        alert_success(`Tạo Cuộc Hẹn`, `Bạn Đã Tạo Thành Công Cuộc Hẹn ${result.document.appointment_type} Ngày ${result.document.start_date}`);
-        if(result.document.appointment_type === "Tiêm Ngừa Covid 19"){
-          const VaccData = {
-            vaccination: "Tiêm Ngừa Covid",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
-            note: "",
-            AppointmentId: result.document._id,
-            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0"
-          }
-          const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Uốn Ván"){
-          const VaccData = {
-            vaccination: "Tiêm Ngừa Uốn Ván",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
-            note: "",
-            AppointmentId: result.document._id,
-            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517"
-          }
-          const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Viêm Gan"){
-          const VaccData = {
-            vaccination: "-",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
-            note: "",
-            AppointmentId: result.document._id,
-            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853"
-          }
-          const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Nhiễm Khuẩn"){
-          const VaccData = {
-            vaccination: "-",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
-            note: "",
-            AppointmentId: result.document._id,
-            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9"
-          }
-          const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Bệnh Truyền Nhiễm"){
-          const VaccData = {
-            vaccination: "-",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
-            note: "",
-            AppointmentId: result.document._id,
-            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e"
-          }
-          const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Khám Bệnh"){
-          const MedicalData = {
-            diagnosis: "-",
-            medical_condition: "-",
-            doctor: "-",
-            note: "",
-            AppointmentId: result.document._id,
-          }
-          const CreateMedical = await http_create(Medical, MedicalData);
-          console.log("Medical:", CreateMedical);
-        }
-      } else {
-        alert_error(`Tạo Cuộc Hẹn`, result.msg)
-      }
-      await refresh();
-    };
-    const edit = async (editValue) => {
-      console.log(editValue);
-      const result = await http_update(Appointment, editValue._id, editValue);
+      const idne = sessionStorage.getItem("UserId");
+      const ChronicData = {
+        UserId: idne,
+        name: data.itemAdd.name,
+        diagnosis_date: data.itemAdd.diagnosis_date,
+        doctor: data.itemAdd.doctor,
+        current_status: data.itemAdd.current_status,
+        description: data.itemAdd.description
+      };
+      const result = await http_create(Chronic, ChronicData);
       if (!result.error) {
-        alert_success(`Sửa Lịch Hẹn`, `${result.msg}`);
-        refresh();
-      } else if (result.error) {
-        alert_error(`Sửa Lịch Hẹn`, `${result.msg}`);
+        // console.log("health_statistic:", result);
+        alert_success("Tạo Hồ Sơ Bệnh Mãn Tính", result.msg);
+        await refresh();
+      } else {
+        console.log("Lỗi", result.msg);
+        alert_error("Tạo Hồ Sơ Bệnh Mãn Tính", result.msg);
       }
-    };
-
-    const update = (item) => {
-      console.log("updating", item);
     };
     const deleteOne = async (_id) => {
-      const appointment = await http_getOne(Appointment, _id);
+      const health = await http_getOne(Chronic, _id);
+      // console.log("deleting", user);
       const isConfirmed = await alert_delete(
-        `Xoá Lịch Hẹn`,
-        `Bạn có chắc chắn muốn xoá lịch hẹn ${appointment.appointment_type} ngày ${appointment.start_date} không ?`
+        `Xoá Hồ Sơ Bệnh Mãn Tính`,
+        `Bạn có chắc chắn muốn xoá hồ sơ ngày ${health.diagnosis_date} ?`
       );
+      // console.log(isConfirmed);
       if (isConfirmed == true) {
-        const result = await http_deleteOne(Appointment, _id);
+        const result = await http_deleteOne(Chronic, _id);
+        // console.log("Name:", result);
         alert_success(
-          `Xoá Lịch Hẹn`,
-          `Bạn đã xoá thành công lịch hẹn ${result.document.appointment_type} ngày ${result.document.start_date}`
+          `Xoá Hồ Sơ`,
+          `Bạn đã xoá thành công hồ sơ.`
         );
         refresh();
-      } 
+      }
+    };
+    const edit = async () => {
+      const result = await http_update(
+        Chronic,
+        data.editValue._id,
+        data.editValue
+      );
+      if (!result.error) {
+        alert_success(`Sửa Hồ Sơ`, `${result.msg}`);
+        refresh();
+      } else if (result.error) {
+        alert_error(`Sửa Hồ Sơ`, `${result.msg}`);
+      }
+    };
+    const deleteAll = async () => {
+      const isConfirmed = await alert_delete(
+        "Xoá Tất Cả Hồ Sơ",
+        "Bạn có chắc chắn muốn xoá tất cả hồ sơ?"
+      );
+      if (isConfirmed) {
+        // Lặp qua data.items và xóa tất cả
+        if(data.items.length == 0){
+          alert_error("Xoá Tất Cả Hồ Sơ", "Không có hồ sơ nào để xóa!")
+        }
+        for (const item of data.items) {
+          const result = await http_deleteOne(Chronic, item._id);
+          if (!result.error) {
+            alert_delete(`Đã xoá hồ sơ`, result.msg);
+          } else {
+            alert_error(`Lỗi`, result.msg)
+          }
+        }
+        await refresh();
+      }
     };
     const refresh = async () => {
-      data.items = await http_getAll(Appointment);
-    }
+      data.items = await http_getAll(Chronic);
+    };
     onBeforeMount(async () => {
       refresh();
+      // console.log(data.items);
     });
     return {
       data,
       setPages,
-      edit,
-      update,
       create,
-      deleteOne
+      deleteOne,
+      edit,
+      deleteAll
     };
   },
 };
@@ -401,6 +386,6 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999,1; /* Ensure the modal is on top of other content */
+  z-index: 99; /* Ensure the modal is on top of other content */
 }
 </style>

@@ -56,7 +56,22 @@ const routes = [
         path: "/setting",
         name: "Settings",
         component: () => import('../views/setting/index.vue'),
-      }
+      },
+      {
+        path: "/allergy",
+        name: "Allergys",
+        component: () => import('../views/health_records/allergy.vue'),
+      },
+      {
+        path: "/chronic",
+        name: "Chronics",
+        component: () => import('../views/health_records/chronic.vue'),
+      },
+      {
+        path: "/security",
+        name: "Securitys",
+        component: () => import('../views/setting/security.vue'),
+      },
     ],
   },
 ];

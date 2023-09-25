@@ -77,7 +77,16 @@ export const http_getAllUserIdByFamilyId = async (objService, familyId) => {
         console.log(error);
     }
 }
-
+// tìm account dựa vào userid
+export const http_findAccountByUserId = async (objService, UserId) => {
+    try {
+      const document = await objService.findByUserId(UserId);
+      return document;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
 
 
 

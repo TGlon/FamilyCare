@@ -14,4 +14,7 @@ router.route('/:id')
     .delete(accounts.deleteOne)
     router.route('/login')
     .post(accounts.login)
+    router.route('/find-by-userid/:UserId')
+    .get(accounts.findAccountByUserId);
+
 module.exports = router;
