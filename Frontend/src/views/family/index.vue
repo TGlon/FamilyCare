@@ -47,8 +47,11 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
         />
         <Search
           class="ml-3"
@@ -137,7 +140,7 @@ import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import Add from "./add.vue";
 import Edit from "../family/edit.vue";
-import { reactive, computed, onBeforeMount } from "vue";
+import { ref, reactive, computed, onBeforeMount } from "vue";
 import {
   http_create,
   http_update,
@@ -145,6 +148,10 @@ import {
   http_deleteOne,
   http_getAllByUserId,
   http_getAllUserIdByFamilyId,
+  http_findAccountByPassportAndName,
+  http_findUserFamilyByUserId,
+  http_deleteOneUsrFam,
+  http_getAll
 } from "../../assets/js/common.http";
 import User from "../../services/user.service";
 import User_Family from "../../services/user_family.service";
@@ -201,6 +208,7 @@ export default {
         relationship: "",
       },
       matchingUserFamilies: [],
+      // a: [],
     });
     // computed
     const toString = computed(() => {
@@ -244,65 +252,125 @@ export default {
         });
       } else return data.items.value;
     });
-    
 
     // Methods
     const create = async () => {
+      const existingUser = await http_findAccountByPassportAndName(
+        User,
+        data.itemAdd.name,
+        data.itemAdd.passport
+      );
+      // console.log("ex", existingUser);
+      if (!existingUser.error) {
+        const idUser = existingUser._id;
+        // console.log(idUser);
+        const userFamilyData = {
+          UserId: idUser,
+          FamilyId: data.familyadd.family,
+          relationship: data.relationship.relationship,
+        };
+        const userFamilyResult = await http_create(User_Family, userFamilyData);
+        if (!userFamilyResult.error) {
+          // Both user and user_family entries were created successfully
+          alert_success(
+            `Thêm Thành Viên`,
+            `Thành viên đã được tạo mối quan hệ thành công.`
+          );
+          refresh();
+        } else {
+          alert_error(`Thêm Quan Hệ`, `${userFamilyResult.msg}`);
+        }
+      } else {
+        alert_error("Lỗi", "Thành Viên Không Tồn Tại Trong Hệ Thống");
+      }
+      // try {
+      //   // Step 1: Create a user entry in the User table
+      //   const userResult = await http_create(User, data.itemAdd);
+
+      //   if (!userResult.error) {
+      //     const userId = userResult.document._id; // Get the _id of the newly created user
+
+      //     // Step 2: Create an entry in the User_Family table
+      //     const userFamilyData = {
+      //       UserId: userId, // Use the userId obtained above
+      //       FamilyId: data.familyadd.family, // Assuming data.familyadd has _id property
+      //       relationship: data.relationship.relationship,
+      //     };
+      //     // console.log("User_Family:", userFamilyData);
+      //     const userFamilyResult = await http_create(
+      //       User_Family,
+      //       userFamilyData
+      //     );
+
+      //     if (!userFamilyResult.error) {
+      //       // Both user and user_family entries were created successfully
+      //       alert_success(
+      //         `Thêm Thành Viên`,
+      //         `Thành viên ${userResult.document.name} đã được tạo thành công.`
+      //       );
+      //       refresh();
+      //     } else {
+      //       alert_error(`Thêm Quan Hệ`, `${userFamilyResult.msg}`);
+      //     }
+      //   } else {
+      //     alert_error(`Thêm Thành Viên`, `${userResult.msg}`);
+      //   }
+      // } catch (error) {
+      //   console.error("Error:", error);
+      // }
+    };
+
+    // const deleteOne = async (_id) => {
+    //   const user = await http_getOne(User, _id);
+    //   // console.log("deleting", user);
+    //   const isConfirmed = await alert_delete(
+    //     `Xoá Thành Viên`,
+    //     `Bạn có chắc chắn muốn xoá ${user.name} không ?`
+    //   );
+    //   // console.log(isConfirmed);
+    //   if (isConfirmed == true) {
+    //     const result = await http_deleteOne(User, _id);
+    //     // console.log("Name:", result);
+    //     alert_success(
+    //       `Xoá Thành Viên`,
+    //       `Bạn đã xoá thành công ${result.document.name}`
+    //     );
+    //     refresh();
+    //   }
+    // };
+    const deleteOne = async (_id) => {
       try {
-        // Step 1: Create a user entry in the User table
-        const userResult = await http_create(User, data.itemAdd);
-
-        if (!userResult.error) {
-          const userId = userResult.document._id; // Get the _id of the newly created user
-
-          // Step 2: Create an entry in the User_Family table
-          const userFamilyData = {
-            UserId: userId, // Use the userId obtained above
-            FamilyId: data.familyadd.family, // Assuming data.familyadd has _id property
-            relationship: data.relationship.relationship,
-          };
-          // console.log("User_Family:", userFamilyData);
-          const userFamilyResult = await http_create(
+        // Step 1: Find the userFamily entry by user _id
+        const user = await http_getOne(User, _id);
+        // console.log(user);
+        const userFamily = await http_findUserFamilyByUserId(
+          User_Family,
+          user._id
+        );
+        // console.log(userFamily);
+        // console.log(userFamily.UserId);
+        // console.log(userFamily.FamilyId);
+        if (userFamily) {
+          // Step 2: Delete the userFamily entry
+          const result = await http_deleteOneUsrFam(
             User_Family,
-            userFamilyData
+            userFamily.UserId,
+            userFamily.FamilyId
           );
 
-          if (!userFamilyResult.error) {
-            // Both user and user_family entries were created successfully
+          if (result) {
             alert_success(
-              `Thêm Thành Viên`,
-              `Thành viên ${userResult.document.name} đã được tạo thành công.`
+              `Xoá Thành Viên`,
+              `Bạn đã xoá thành công quan hệ cho ${user.name}`
             );
             refresh();
-          } else {
-            alert_error(`Thêm Quan Hệ`, `${userFamilyResult.msg}`);
           }
-        } else {
-          alert_error(`Thêm Thành Viên`, `${userResult.msg}`);
         }
       } catch (error) {
         console.error("Error:", error);
       }
     };
 
-    const deleteOne = async (_id) => {
-      const user = await http_getOne(User, _id);
-      // console.log("deleting", user);
-      const isConfirmed = await alert_delete(
-        `Xoá Thành Viên`,
-        `Bạn có chắc chắn muốn xoá ${user.name} không ?`
-      );
-      // console.log(isConfirmed);
-      if (isConfirmed == true) {
-        const result = await http_deleteOne(User, _id);
-        // console.log("Name:", result);
-        alert_success(
-          `Xoá Thành Viên`,
-          `Bạn đã xoá thành công ${result.document.name}`
-        );
-        refresh();
-      }
-    };
     const edit = async (editedUserData) => {
       try {
         const updatedUserResult = await http_update(
@@ -328,6 +396,8 @@ export default {
     const update = (item) => {
       console.log("updating", item);
     };
+
+    // Hàm refresh này hiển thị thông tin người tạo gia đình
     const refresh = async () => {
       const loggedInUserId = sessionStorage.getItem("UserId");
       try {
@@ -405,6 +475,7 @@ export default {
           insurance: user.insurance,
           phone: user.phone,
           relationship: relationships[0],
+          // relationship: relationships[relationships.length - 1],
         };
       });
       // Nối (concatenate) mảng tạm vào mảng data.items
@@ -418,11 +489,103 @@ export default {
       // console.log("data:", data.items);
     };
 
+    // Hàm refresh này không hiển thị thông tin người tạo gia đình
+    // const refresh = async () => {
+    //   const loggedInUserId = sessionStorage.getItem("UserId");
+    //   try {
+    //     data.matchingUserFamilies = await http_getAllByUserId(
+    //       User_Family,
+    //       loggedInUserId
+    //     );
+    //   } catch (error) {
+    //     console.log("Lỗi", error);
+    //   }
+
+    //   const familyIds = [];
+    //   data.matchingUserFamilies.forEach((item) => {
+    //     familyIds.push(item.FamilyId);
+    //   });
+
+    //   const temporaryUserArray = [];
+
+    //   for (const familyId of familyIds) {
+    //     try {
+    //       const documents = await http_getAllUserIdByFamilyId(
+    //         User_Family,
+    //         familyId
+    //       );
+
+    //       const userIds = [];
+    //       documents.forEach((document) => {
+    //         userIds.push(document.UserId);
+    //       });
+
+    //       for (const userId of userIds) {
+    //         // Kiểm tra xem userId có khớp với người đăng nhập không
+    //         if (userId !== loggedInUserId) {
+    //           try {
+    //             const user = await http_getOne(User, userId);
+    //             const userRelationship = await http_getAllByUserId(
+    //               User_Family,
+    //               userId
+    //             );
+    //             const relationships = userRelationship.map(
+    //               (item) => item.relationship
+    //             );
+    //             const userWithRelationship = {
+    //               user,
+    //               relationships,
+    //             };
+    //             temporaryUserArray.push(userWithRelationship);
+    //           } catch (error) {
+    //             console.error(
+    //               `Error finding User with UserId ${userId}:`,
+    //               error
+    //             );
+    //           }
+    //         }
+    //       }
+    //     } catch (error) {
+    //       console.error(`Error for FamilyId ${familyId}:`, error);
+    //     }
+    //   }
+
+    //   data.items = temporaryUserArray.map((userWithRelationship) => {
+    //     const { user, relationships } = userWithRelationship;
+    //     return {
+    //       _id: user._id,
+    //       name: user.name,
+    //       gender: user.gender,
+    //       birthday: user.birthday,
+    //       address: user.address,
+    //       passport: user.passport,
+    //       digital_identity: user.digital_identity,
+    //       email: user.email,
+    //       ethnic: user.ethnic,
+    //       nation: user.nation,
+    //       insurance: user.insurance,
+    //       phone: user.phone,
+    //       relationship: relationships[0],
+    //     };
+    //   });
+
+    //   data.items = data.items.filter((user, index, self) => {
+    //     return index === self.findIndex((u) => u.name === user.name);
+    //   });
+
+    //   // console.log("data:", data.items);
+    // };
+    // const refresh1 = async () => {
+    //   data.a = await http_getAll(User_Family);
+    //   console.log("data.a", data.a);
+    // }
     // Hàm callback được gọi trước khi component được mount (load)
     onBeforeMount(async () => {
       refresh();
+      // refresh1()
       // console.log(data.items);
     });
+    const activeMenu = ref(1);
     return {
       data,
       setPages,
@@ -430,6 +593,7 @@ export default {
       edit,
       update,
       create,
+      activeMenu,
     };
   },
 };
@@ -477,6 +641,6 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999,1; /* Ensure the modal is on top of other content */
+  z-index: 999, 1; /* Ensure the modal is on top of other content */
 }
 </style>

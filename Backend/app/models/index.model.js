@@ -1081,12 +1081,12 @@ Appointment.belongsTo(User, {
 // --------------------- //
 Appointment.hasMany(Vaccination_History, {
   foreignKey: "AppointmentId",
-  onDelete: "SET NULL",
+  onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
 Vaccination_History.belongsTo(Appointment, {
   foreignKey: "AppointmentId",
-  onDelete: "SET NULL",
+  onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
 // Vaccination_History.hasMany(Appointment, {

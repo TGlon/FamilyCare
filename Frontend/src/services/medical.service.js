@@ -22,6 +22,9 @@ class MedicalService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+    async findAllByUserId(UserId) {
+        return (await this.api.get(`/byUserId/${UserId}`)).data;
+    }
 }
 
 export default new MedicalService();

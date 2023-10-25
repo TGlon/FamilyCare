@@ -82,8 +82,11 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
         />
         <Search
           class="ml-3"
@@ -165,7 +168,7 @@ import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import Add from "./add.vue";
 import Edit from "./edit.vue";
-import { reactive, computed, onBeforeMount } from "vue";
+import {ref, reactive, computed, onBeforeMount } from "vue";
 import {
   http_create,
   http_getAll,
@@ -331,19 +334,26 @@ export default {
       }
     };
     const refresh = async () => {
+      const id = sessionStorage.getItem("UserId");
       data.items = await http_getAll(Health_Statistic);
+      // console.log(data.items);
+      data.items = data.items.filter(
+        (user) => user.UserId === id
+      );
     };
     onBeforeMount(async () => {
       refresh();
       // console.log(data.items);
     });
+    const activeMenu = ref(1);
     return {
       data,
       setPages,
       create,
       deleteOne,
       edit,
-      deleteAll
+      deleteAll,
+      activeMenu
     };
   },
 };

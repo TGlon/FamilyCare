@@ -74,7 +74,7 @@ export default {
             >
               <span
                 id="view"
-                @click="$emit('view', item), console.log('cccc')"
+                @click="$emit('view', item), console.log('view-medical', item)"
                 class="material-symbols-outlined d-flex align-items-center"
               >
                 visibility

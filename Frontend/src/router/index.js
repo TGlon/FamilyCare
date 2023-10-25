@@ -72,6 +72,11 @@ const routes = [
         name: "Securitys",
         component: () => import('../views/setting/security.vue'),
       },
+      {
+        path: "/medicinetype",
+        name: "MedicineType",
+        component: () => import('../views/medical/medicine.vue'),
+      }
     ],
   },
 ];

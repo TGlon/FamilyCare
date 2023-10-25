@@ -47,8 +47,11 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
         />
         <Search
           class="ml-3"
@@ -75,10 +78,7 @@
         >
           <span id="add" class="mx-2">Thêm</span>
         </button>
-        <Add
-          :item="data.itemAdd"
-          @create="create"
-        />
+        <Add :item="data.itemAdd" @create="create" />
       </div>
     </div>
     <!-- Table -->
@@ -91,13 +91,7 @@
         'Trạng Thái',
         'Ghi Chú',
       ]"
-      :labels="[
-        'appointment_type',
-        'start_date',
-        'place',
-        'status',
-        'note',
-      ]"
+      :labels="['appointment_type', 'start_date', 'place', 'status', 'note']"
       @delete="(value) => deleteOne(value)"
       @edit="
         (value, value1) => (
@@ -154,7 +148,7 @@ export default {
     Select,
     Pagination,
     Add,
-    Edit
+    Edit,
   },
   setup() {
     const data = reactive({
@@ -175,7 +169,7 @@ export default {
         start_date: "",
         place: "",
         status: "",
-        note: ""
+        note: "",
       },
     });
     // computed
@@ -230,85 +224,92 @@ export default {
         start_date: data.itemAdd.start_date,
         place: data.itemAdd.place,
         status: data.itemAdd.status,
-        note: data.itemAdd.note
-      }
+        note: data.itemAdd.note,
+      };
       // console.log(create);
       const result = await http_create(Appointment, AppData);
-      if(!result.error){
-        alert_success(`Tạo Cuộc Hẹn`, `Bạn Đã Tạo Thành Công Cuộc Hẹn ${result.document.appointment_type} Ngày ${result.document.start_date}`);
-        if(result.document.appointment_type === "Tiêm Ngừa Covid 19"){
+      if (!result.error) {
+        alert_success(
+          `Tạo Cuộc Hẹn`,
+          `Bạn Đã Tạo Thành Công Cuộc Hẹn ${result.document.appointment_type} Ngày ${result.document.start_date}`
+        );
+        if (result.document.appointment_type === "Tiêm Ngừa Covid 19") {
           const VaccData = {
             vaccination: "Tiêm Ngừa Covid",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0"
-          }
+            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0",
+          };
           const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Uốn Ván"){
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if (result.document.appointment_type === "Tiêm Ngừa Uốn Ván") {
           const VaccData = {
             vaccination: "Tiêm Ngừa Uốn Ván",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517"
-          }
+            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517",
+          };
           const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Viêm Gan"){
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if (result.document.appointment_type === "Tiêm Ngừa Viêm Gan") {
           const VaccData = {
-            vaccination: "-",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853"
-          }
+            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853",
+          };
           const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Nhiễm Khuẩn"){
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if (
+          result.document.appointment_type === "Tiêm Ngừa Nhiễm Khuẩn"
+        ) {
           const VaccData = {
-            vaccination: "-",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9"
-          }
+            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9",
+          };
           const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Tiêm Ngừa Bệnh Truyền Nhiễm"){
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if (
+          result.document.appointment_type === "Tiêm Ngừa Bệnh Truyền Nhiễm"
+        ) {
           const VaccData = {
-            vaccination: "-",
-            vaccine: "-",
-            doses: "-",
-            doctor: "-",
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e"
-          }
+            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e",
+          };
           const CreateVaccination = await http_create(Vaccination, VaccData);
-          console.log("Data Vacc:", CreateVaccination);
-        } else if(result.document.appointment_type === "Khám Bệnh"){
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if (result.document.appointment_type === "Khám Bệnh") {
           const MedicalData = {
-            diagnosis: "-",
-            medical_condition: "-",
-            doctor: "-",
+            diagnosis: "N/A",
+            medical_condition: "N/A",
+            doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-          }
+          };
           const CreateMedical = await http_create(Medical, MedicalData);
-          console.log("Medical:", CreateMedical);
+          // console.log("Medical:", CreateMedical);
         }
       } else {
-        alert_error(`Tạo Cuộc Hẹn`, result.msg)
+        alert_error(`Tạo Cuộc Hẹn`, result.msg);
       }
       await refresh();
     };
@@ -339,11 +340,18 @@ export default {
           `Bạn đã xoá thành công lịch hẹn ${result.document.appointment_type} ngày ${result.document.start_date}`
         );
         refresh();
-      } 
+      }
     };
     const refresh = async () => {
+      const id = sessionStorage.getItem("UserId");
       data.items = await http_getAll(Appointment);
-    }
+      
+      // Lọc ra các mục có UserId giống với id đã đăng nhập
+      data.items = data.items.filter(
+        (appointment) => appointment.UserId === id
+      );
+    };
+
     onBeforeMount(async () => {
       refresh();
     });
@@ -353,7 +361,7 @@ export default {
       edit,
       update,
       create,
-      deleteOne
+      deleteOne,
     };
   },
 };
@@ -401,6 +409,6 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 999,1; /* Ensure the modal is on top of other content */
+  z-index: 999, 1; /* Ensure the modal is on top of other content */
 }
 </style>

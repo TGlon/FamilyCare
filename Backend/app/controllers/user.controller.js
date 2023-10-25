@@ -1,6 +1,20 @@
 const { User, Family, User_Family } = require("../models/index.model.js");
 const createError = require("http-errors");
+const crypto = require('crypto');
 
+const encryptionKey = "11032002200220011103200220022001";
+const iv = "b2009872b1913315";
+
+const setEncrypt = (value) => {
+  if (value.length === 0) {
+    return '';
+  } else {
+    const cipher = crypto.createCipheriv('aes-256-cbc', encryptionKey, iv);
+    let encrypted = cipher.update(value, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+  }
+};
 
 exports.create = async (req, res, next) => {
   if (Object.keys(req.body).length === 11) {
@@ -104,6 +118,28 @@ exports.findOne = async (req, res, next) => {
     return res.send(documents);
   } catch (error) {
     return next(createError(400, "Error finding user !"));
+  }
+};
+exports.findOneByPassport = async (req, res, next) => {
+  try {
+    const name = req.params.name;
+    const passport = req.params.passport;
+    const encryptedpassport = setEncrypt(passport);
+    const encryptedname = setEncrypt(name);
+    const documents = await User.findOne({
+      where: {
+        name: encryptedname,
+        passport: encryptedpassport,
+      },
+    });
+    // console.log("Pass:", req.params.passport);
+    if (documents) {
+      return res.send(documents);
+    } else {
+      return next(createError(404, "User not found"));
+    }
+  } catch (error) {
+    return next(createError(500, "Error finding user"));
   }
 };
 

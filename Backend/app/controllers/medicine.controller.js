@@ -1,4 +1,4 @@
-const { Medicine } = require("../models/index.model.js");
+const { Medicine, Medical_History, Appointment } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
@@ -50,7 +50,8 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Medicine.findAll({});
+    const documents = await Medicine.findAll({
+    });
     return res.send(documents);
   } catch (error) {
     console.log(error);
@@ -160,5 +161,96 @@ exports.update = async (req, res, next) => {
     }
   } catch (error) {
     return next(createError(400, "Error update"));
+  }
+};
+exports.findAllByMedicalHistoryId = async (req, res, next) => {
+  const { MedicalHistoryId } = req.params; // Lấy MedicalHistoryId từ request params
+
+  try {
+    const medicines = await Medicine.findAll({
+      where: {
+        MedicalHistoryId: MedicalHistoryId,
+      },
+    });
+
+    if (medicines.length === 0) {
+      // Nếu không có thuốc nào thuộc MedicalHistoryId này, trả về lỗi 404
+      return next(createError(404, "Không tìm thấy thuốc cho MedicalHistoryId này"));
+    }
+
+    return res.send(medicines);
+  } catch (error) {
+    console.log(error);
+    return next(createError(400, "Lỗi khi tìm kiếm thuốc theo MedicalHistoryId"));
+  }
+};
+
+// Controller để tạo một bản ghi mới với trường "name" trong Medicine
+exports.createName = async (req, res, next) => {
+  try {
+    if (req.body.name) { // Kiểm tra xem có trường "name" trong dữ liệu đầu vào hay không
+      const existingMedicine = await Medicine.findOne({
+        where: {
+          name: req.body.name
+        }
+      });
+
+      if (existingMedicine) {
+        return res.send({
+          error: true,
+          msg: `Tên thuốc "${req.body.name}" đã tồn tại.`
+        });
+      }
+
+      const newMedicine = await Medicine.create({
+        name: req.body.name
+      });
+
+      return res.send({
+        error: false,
+        msg: `Bạn đã tạo thành công đơn thuốc`,
+        document: newMedicine
+      });
+    } else {
+      return res.send({
+        error: true,
+        msg: `Vui lòng nhập tên thuốc.`
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.send({
+      error: true,
+      msg: error.message
+    });
+  }
+};
+
+exports.findAllByUserId = async (req, res, next) => {
+  const { userId } = req.params; // Lấy UserId từ request params
+
+  try {
+    const medicines = await Medicine.findAll({
+      include: [
+        {
+          model: Medical_History,
+          include: [
+            {
+              model: Appointment,
+              where: { UserId: userId }, // Lọc theo UserId
+            },
+          ],
+        },
+      ],
+    });
+
+    if (medicines.length === 0) {
+      return next(createError(404, "Không tìm thấy thuốc cho UserId này"));
+    }
+
+    return res.send(medicines);
+  } catch (error) {
+    console.log(error);
+    return next(createError(400, "Lỗi khi tìm kiếm thuốc theo UserId"));
   }
 };

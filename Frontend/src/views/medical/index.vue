@@ -9,27 +9,13 @@
       >
         <span class="size-17">Tiền Sử Bệnh Tật</span>
       </router-link>
-      <!-- <router-link
-        :to="{ name: 'Allergys' }"
+      <router-link
+        :to="{ name: 'MedicineType' }"
         @click="activeMenu = 2"
         :class="[activeMenu == 2 ? 'active-menu' : 'none-active-menu']"
       >
-        <span class="size-17">Dị Ứng</span>
+        <span class="size-17">Thuốc</span>
       </router-link>
-      <router-link
-        :to="{ name: 'Chronics' }"
-        @click="activeMenu = 3"
-        :class="[activeMenu == 3 ? 'active-menu' : 'none-active-menu']"
-      >
-        <span class="size-17">Bệnh Mãn Tính</span>
-      </router-link> -->
-      <!-- <router-link
-          :to="{ name: 'FamilyTypes' }"
-          @click="activeMenu = 2"
-          :class="[activeMenu == 2 ? 'active-menu' : 'none-active-menu']"
-        >
-          <span class="size-17">Quản Lý Gia Đình</span>
-        </router-link> -->
     </div>
     <!-- Filter -->
 
@@ -61,8 +47,11 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
         />
         <Search
           class="ml-3"
@@ -118,6 +107,7 @@
         )
       "
       @medicine="(value) => getId(value)"
+      @view="(value) => view(value)"
     />
     <!-- Pagination -->
     <Pagination
@@ -135,6 +125,7 @@
       @cancel="data.activeEdit = false"
       @edit="edit(data.editValue)"
     />
+    <View :id="data.viewValue" />
   </div>
 </template>
 
@@ -147,6 +138,7 @@ import Add from "./add.vue";
 import Edit from "./edit.vue";
 import AddMedi from "./add_medical.vue";
 import AddApp from "./add_app.vue";
+import View from "./view.vue";
 import { reactive, computed, onBeforeMount, ref } from "vue";
 import {
   http_create,
@@ -154,6 +146,8 @@ import {
   http_getOne,
   http_deleteOne,
   http_getAll,
+  http_getAllByMedicalHistoryId,
+  http_getAllMedicalByUserId,
 } from "../../assets/js/common.http";
 import Appointment from "../../services/appointment.service";
 import Medicine from "../../services/medicine.service";
@@ -163,6 +157,7 @@ import {
   alert_error,
 } from "../../assets/js/common.alert";
 import Medical from "../../services/medical.service";
+import Medicinee from "../../services/medicine.service";
 import { formatCreatedAt } from "../../assets/js/common.format";
 export default {
   components: {
@@ -174,6 +169,7 @@ export default {
     Edit,
     AddMedi,
     AddApp,
+    View,
   },
   setup() {
     const data = reactive({
@@ -196,6 +192,20 @@ export default {
         medical_condition: "",
         doctor: "",
         note: "",
+      },
+      viewValue: {
+        _id: "",
+        diagnosis: "",
+        start_date: "",
+        medical_condition: "",
+        doctor: "",
+        note: "",
+        Medicine: {
+          name: "",
+          frequency: "",
+          doses: "",
+          note: "",
+        },
       },
     });
 
@@ -273,7 +283,7 @@ export default {
       const putAppData = {
         appointment_type: "Khám Bệnh",
         start_date: formattedCreatedAt,
-        place: "-",
+        place: "N/A",
         status: "Đã Hoàn Thành",
         note: "",
         UserId: id,
@@ -298,7 +308,7 @@ export default {
       }
     };
     const create = async (medicationsData) => {
-      // console.log(medicationsData);
+      console.log(medicationsData);
       try {
         const medicalHistoryId = myVariable._value;
         // console.log("id", medicalHistoryId);
@@ -336,11 +346,92 @@ export default {
         place: data.itemAddapp.place,
         status: data.itemAddapp.status,
         note: data.itemAddapp.note,
-        UserId: id
+        UserId: id,
       };
       const result = await http_create(Appointment, dataapp);
       if (!result.error) {
         alert_success("Thêm thành công", result.msg);
+        if (result.document.appointment_type === "Tiêm Ngừa Covid 19") {
+          const VaccData = {
+            vaccination: "Tiêm Ngừa Covid",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0",
+          };
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+          await refresh();
+        } else if (result.document.appointment_type === "Tiêm Ngừa Uốn Ván") {
+          const VaccData = {
+            vaccination: "Tiêm Ngừa Uốn Ván",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517",
+          };
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+          await refresh();
+        } else if (result.document.appointment_type === "Tiêm Ngừa Viêm Gan") {
+          const VaccData = {
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853",
+          };
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+          await refresh();
+        } else if (
+          result.document.appointment_type === "Tiêm Ngừa Nhiễm Khuẩn"
+        ) {
+          const VaccData = {
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9",
+          };
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+          await refresh();
+        } else if (
+          result.document.appointment_type === "Tiêm Ngừa Bệnh Truyền Nhiễm"
+        ) {
+          const VaccData = {
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e",
+          };
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+          await refresh();
+        } else if (result.document.appointment_type === "Khám Bệnh") {
+          const MedicalData = {
+            diagnosis: "N/A",
+            medical_condition: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+          };
+          const CreateMedical = await http_create(Medical, MedicalData);
+          // console.log("Medical:", CreateMedical);
+          await refresh();
+        }
       } else {
         // Sử dụng alert_error để thông báo lỗi
         alert_error("Lỗi khi thêm", result.msg);
@@ -377,9 +468,45 @@ export default {
         refresh();
       }
     };
-    const refresh = async () => {
-      data.items = await http_getAll(Medical);
+    const view = async (id) => {
+      const dataMedi = await http_getAllByMedicalHistoryId(Medicinee, id._id);
+      // Khởi tạo một mảng để lưu thông tin tất cả các thuốc
+      const medicines = [];
+
+      // Duyệt qua tất cả các đối tượng thuốc trong dataMedi
+      if (dataMedi && dataMedi.length > 0) {
+        dataMedi.forEach((medicine) => {
+          medicines.push({
+            name: medicine.name,
+            frequency: medicine.frequency,
+            doses: medicine.doses,
+            note: medicine.note,
+          });
+        });
+      }
+      // Gán danh sách thuốc vào Medicine
+      data.viewValue = {
+        _id: id._id,
+        diagnosis: id.diagnosis,
+        start_date: id.start_date,
+        medical_condition: id.medical_condition,
+        doctor: id.doctor,
+        note: id.note,
+        Medicine: medicines,
+      };
+      console.log(data.viewValue);
     };
+
+    const refresh = async () => {
+      const id = sessionStorage.getItem("UserId");
+      const medicalData = await http_getAllMedicalByUserId(Medical, id);
+
+      // Filter out items with null Appointment
+      data.items = medicalData.filter((item) => item.Appointment !== null);
+
+      console.log("data nè", data.items);
+    };
+
     onBeforeMount(async () => {
       refresh();
     });
@@ -393,6 +520,7 @@ export default {
       getId,
       create1,
       create2,
+      view,
     };
   },
 };

@@ -75,5 +75,18 @@ export const alert_delete = async (title, text) => {
     return isConfirmed;
 }
 
-
+export const alert_noti = (title, text) => {
+    const formattedText = text.replace(/\n/g, "<br>");
+    Swal.fire({
+      icon: "info",
+      title: title,
+      html: `<div style="line-height:30px;text-align:center;">${formattedText}</div>`,
+      background: "#fff",
+      width: 700,
+      didOpen: () => {
+        const popup = Swal.getPopup();
+        popup.style.border = "2px solid #fff";
+      },
+    });
+  };
 

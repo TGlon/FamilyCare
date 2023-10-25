@@ -3,14 +3,15 @@ const createError = require("http-errors");
 const { v4: uuidv4 } = require("uuid");
 // const { sequelize } = require("../config/index");
 
-// _id, content , isRead, recipient, sender
+// _id, content , isRead
 exports.create = async (req, res, next) => {
-  const { content, title } = req.body;
+  const { content, title, AppointmentId, isRead } = req.body;
   if (content && title ) {
     try {
       const document = await Notification.create({
         content,
-        title
+        title,
+        AppointmentId, isRead
       });
 
       return res.status(200).json({
@@ -24,7 +25,7 @@ exports.create = async (req, res, next) => {
     }
   } else {
     res.status(200).json({
-      msg: "Không được để chống nội dung, tiêu đề thông báo",
+      msg: "Không được để trống nội dung, tiêu đề thông báo",
       error: true,
     });
   }
@@ -32,7 +33,11 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Notification.findAll({});
+    const documents = await Notification.findAll({
+      include: [{
+        model: Appointment
+      }]
+    });
 
     return res.status(200).json({
       msg:
@@ -57,7 +62,7 @@ exports.findOne = async (req, res, next) => {
             {
               model: Appointment,
               where: {
-                UserId: id, // Lọc theo UserId cụ thể
+                UserId: id, 
               },
             },
           ],

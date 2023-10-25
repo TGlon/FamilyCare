@@ -1,5 +1,6 @@
 <script>
-import { reactive } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
+
 export default {
   props: {
     item: {
@@ -8,17 +9,89 @@ export default {
     },
   },
   setup(props, ctx) {
-    const data = reactive({});
+    const item = ref(props.item);
+    const recognition = new webkitSpeechRecognition();
+
+    recognition.lang = "vi";
+    let isListening = ref(false);
+    let shouldRestartRecognition = true; // Biến để kiểm tra khởi động lại giọng nói
+
+    recognition.onstart = () => {
+      isListening.value = true;
+    };
+
+    recognition.onend = () => {
+      isListening.value = false;
+      // Kiểm tra xem có nên khởi động lại nhận dạng giọng nói
+      if (shouldRestartRecognition) {
+        recognition.start();
+      }
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      handleVoiceCommand(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Lỗi nhận dạng giọng nói:", event.error);
+    };
+
     const create = () => {
       ctx.emit("create1");
       console.log("Thêm Thành Công");
     };
+
+    const toggleVoiceRecognition = () => {
+      if (isListening.value) {
+        stopRecognition();
+      } else {
+        recognition.start();
+        isListening.value = true;
+        shouldRestartRecognition = true;
+      }
+    };
+
+    const stopRecognition = () => {
+      recognition.stop();
+      shouldRestartRecognition = false;
+    };
+
+    const handleVoiceCommand = (command) => {
+      const keywords = ["chuẩn đoán", "tình trạng sức khỏe", "bác", "ghi chú"];
+      for (const keyword of keywords) {
+        if (command.includes(keyword)) {
+          const value = command.replace(keyword, "").trim();
+          switch (keyword) {
+            case "chuẩn đoán":
+              item.value.diagnosis = value;
+              break;
+            case "tình trạng sức khỏe":
+              item.value.medical_condition = value;
+              break;
+            case "bác":
+              item.value.doctor = value;
+              break;
+            case "ghi chú":
+              item.value.note = value;
+              break;
+          }
+        }
+      }
+    };
+
     return {
+      item,
       create,
+      isListening,
+      toggleVoiceRecognition,
     };
   },
 };
 </script>
+
+
+
 
 <template>
   <!-- The Modal -->
@@ -78,9 +151,7 @@ export default {
               />
             </div>
             <div class="form-group">
-              <label for="note"
-                >Ghi Chú:</label
-              >
+              <label for="note">Ghi Chú:</label>
               <input
                 type="text"
                 class="form-control"
@@ -89,6 +160,21 @@ export default {
                 v-model="item.note"
               />
             </div>
+            <button
+              type="button"
+              class="btn btn-secondary  rounded-circle"
+              style="font-size: 14px;width: 50px; height: 40px;"
+              @click="toggleVoiceRecognition"
+              id="toggleVoiceButton"
+            >
+              <span
+                v-if="isListening"
+                class="material-symbols-outlined"
+                >mic_off</span
+              >
+              <span v-else class="material-symbols-outlined">mic</span>
+            </button>
+
             <button
               type="button"
               class="btn btn-primary px-3 py-2"
@@ -107,7 +193,7 @@ export default {
 
 <style scoped>
 #add {
-    float: right;
+  float: right;
 }
 /* CSS để bố trí radio button và label ngang hàng */
 .gender-options {

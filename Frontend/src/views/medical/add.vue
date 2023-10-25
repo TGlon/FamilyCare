@@ -1,6 +1,7 @@
 <script>
-import { reactive } from "vue";
-
+import { reactive, ref, onBeforeMount } from "vue";
+import { http_getAll } from "../../assets/js/common.http";
+import Medicinee from "../../services/medicine.service";
 export default {
   props: {
     item: {
@@ -9,7 +10,9 @@ export default {
     },
   },
   setup(props, ctx) {
-    const data = reactive({});
+    const data = reactive({
+      items: [],
+    });
     const medications = reactive([
       {
         name: "",
@@ -18,19 +21,18 @@ export default {
         note: "",
       },
     ]);
+    const numRows = ref(1); // Biến để theo dõi số lượng hàng trong bảng
 
     const create = () => {
-      // Tạo một bản sao của mảng medications
       const medicationsCopy = medications.map((medication) => ({
         ...medication,
       }));
-
-      // Gửi bản sao của mảng medications lên component cha
       ctx.emit("create", medicationsCopy);
       console.log("Thêm Thành Công");
     };
 
-    const addMedication = () => {
+    const addRow = () => {
+      numRows.value++;
       medications.push({
         name: "",
         frequency: "",
@@ -39,98 +41,142 @@ export default {
       });
     };
 
+    const removeRow = (index) => {
+      numRows.value--;
+      medications.splice(index, 1);
+    };
+    const refresh = async () => {
+      data.items = await http_getAll(Medicinee);
+      // console.log("data nè", data.items);
+    };
+    onBeforeMount(async () => {
+      refresh();
+    });
     return {
+      data,
       medications,
+      numRows,
       create,
-      addMedication,
+      addRow,
+      removeRow,
     };
   },
 };
 </script>
 
 <template>
-  <!-- The Modal -->
   <div class="modal" id="modal-addmedi">
     <div class="modal-dialog">
       <div class="modal-content">
-        <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title" style="font-size: 15px">Thêm Đơn Thuốc</h4>
           <button type="button" class="close" data-dismiss="modal">
             &times;
           </button>
         </div>
-        <!-- ... Modal content ... -->
         <div class="modal-body">
           <form action="" class="was-validated">
-            <div v-for="(medication, index) in medications" :key="index">
-              <div class="form">
-                <div class="readd">
-                  <span
-                    class="material-symbols-outlined"
-                    @click="addMedication"
-                  >
-                    add
-                  </span>
-                </div>
-                <div class="readd" @click="medications.splice(index, 1)">
-                  <span class="material-symbols-outlined"> remove </span>
-                </div>
-                <div class="form-group">
-                  <label for="name"
-                    >Tên Thuốc(<span style="color: red">*</span>):</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    :id="'name' + index"
-                    :name="'name' + index"
-                    v-model="medication.name"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="frequency"
-                    >Tần Suất(<span style="color: red">*</span>):</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    :id="'frequency' + index"
-                    :name="'frequency' + index"
-                    v-model="medication.frequency"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="doses"
-                    >Liều Lượng(<span style="color: red">*</span>):</label
-                  >
-                  <input
-                    type="text"
-                    class="form-control"
-                    :id="'doses' + index"
-                    :name="'doses' + index"
-                    v-model="medication.doses"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="note">Ghi Chú:</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    :id="'note' + index"
-                    :name="'note' + index"
-                    v-model="medication.note"
-                  />
-                </div>
-              </div>
-            </div>
-            <button
+            <table>
+              <thead>
+                <tr>
+                  <th>Tên Thuốc (<span style="color: red">*</span>)</th>
+                  <th>Thời Điểm (<span style="color: red">*</span>)</th>
+                  <th>Liều Lượng (<span style="color: red">*</span>)</th>
+                  <th>Ghi Chú</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(medication, index) in medications" :key="index">
+                  <!-- <td>
+                    <select
+                      class="form-control"
+                      :id="'name' + index"
+                      :name="'name' + index"
+                      v-model="medication.name"
+                      required
+                    >
+                      <option value="" disabled>Chọn tên thuốc</option>
+                      <option
+                        v-for="item in data.items"
+                        :key="item._id"
+                        :value="item.name"
+                      >
+                        {{ item.name }}
+                      </option>
+                    </select>
+                  </td> -->
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :id="'name' + index"
+                      :name="'name' + index"
+                      v-model="medication.name"
+                      required
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :id="'frequency' + index"
+                      :name="'frequency' + index"
+                      v-model="medication.frequency"
+                      required
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :id="'doses' + index"
+                      :name="'doses' + index"
+                      v-model="medication.doses"
+                      required
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :id="'note' + index"
+                      :name="'note' + index"
+                      v-model="medication.note"
+                    />
+                  </td>
+                  <td>
+                    <span
+                      class="material-symbols-outlined"
+                      style="cursor: pointer"
+                      @click="removeRow(index)"
+                    >
+                      remove
+                    </span>
+                    <span
+                      style="cursor: pointer"
+                      class="material-symbols-outlined"
+                      @click="addRow"
+                      id="add"
+                      >add</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- <button
               type="button"
               class="btn btn-primary px-3 py-2"
               style="font-size: 14px"
+              @click="addRow"
+              id="add"
+            >
+              <span>+</span>
+            </button> -->
+            <button
+              type="button"
+              class="btn btn-primary px-3 py-2 mt-2 mr-2"
+              style="font-size: 14px; float: right"
               @click="create"
               id="add"
             >
@@ -144,38 +190,28 @@ export default {
 </template>
 
 <style scoped>
-.form {
+table {
   border: 1px solid var(--gray);
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
+  width: 750px;
+  margin-left: 8px;
+  border-collapse: collapse;
+  font-size: 14px;
 }
-.readd {
-  float: right;
-  cursor: pointer;
+th,
+td {
+  border: 1px solid black;
+  padding: 5px;
+  text-align: center;
 }
-#add {
-  float: right;
+thead {
+  background-color: #9e9fa5;
+  color: white;
 }
-/* CSS để bố trí radio button và label ngang hàng */
-.gender-options {
-  display: flex;
-  align-items: center;
-}
-
-.gender-options input[type="radio"] {
-  margin-right: 1px; /* Khoảng cách giữa radio button và label */
-  width: 50px;
-  height: 20px;
+input {
+  border: 0px;
 }
 
-.gender-options label {
-  margin-right: 50px; /* Khoảng cách giữa các label */
-  display: flex;
-  align-items: center;
-}
-.modal-body {
-  max-height: 600px;
-  overflow-y: scroll;
+.modal-dialog {
+  max-width: 800px; /* Đặt chiều rộng tối đa của modal-dialog */
 }
 </style>

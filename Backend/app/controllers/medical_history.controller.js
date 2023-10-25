@@ -1,10 +1,56 @@
-const { Medical_History, Appointment } = require("../models/index.model.js");
+const { Medical_History, Appointment, Medicine, User } = require("../models/index.model.js");
 const createError = require("http-errors");
 
+// exports.create = async (req, res, next) => {
+//   if (Object.keys(req.body).length === 5) {
+//     const { diagnosis, medical_condition, doctor, note, AppointmentId } =
+//       req.body;
+//     const medicals = await Medical_History.findAll();
+//     for (let value of medicals) {
+//       if (
+//         value.diagnosis == diagnosis &&
+//         value.medical_condition == medical_condition &&
+//         value.doctor == doctor &&
+//         value.note == note &&
+//         value.AppointmentId == AppointmentId
+//       ) {
+//         return res.send({
+//           error: true,
+//           msg: `Đã tồn tại tiền sử bệnh ${value.diagnosis}.`,
+//         });
+//       }
+//     }
+//     try {
+//       const document = await Medical_History.create({
+//         diagnosis: req.body.diagnosis,
+//         medical_condition: req.body.medical_condition,
+//         doctor: req.body.doctor,
+//         note: req.body.note,
+//         AppointmentId: req.body.AppointmentId,
+//       });
+//       return res.send({
+//         error: false,
+//         msg: `Bạn đã ghi nhận thành công tiền sử bệnh ${document.diagnosis}`,
+//         document,
+//       });
+//     } catch (error) {
+//       console.log(error.message);
+//       return res.send({
+//         error: true,
+//         msg: error.message,
+//       });
+//     }
+//   } else {
+//     return res.send({
+//       error: true,
+//       msg: `Vui lòng nhập đủ thông tin.`,
+//     });
+//   }
+// };
 exports.create = async (req, res, next) => {
-  if (Object.keys(req.body).length === 5) {
-    const { diagnosis, medical_condition, doctor, note, AppointmentId } =
-      req.body;
+  if (Object.keys(req.body).length >= 4) {
+    const { diagnosis, medical_condition, doctor, AppointmentId } = req.body;
+    const note = req.body.note || ''; // Sử dụng req.body.note nếu tồn tại hoặc gán là chuỗi rỗng
     const medicals = await Medical_History.findAll();
     for (let value of medicals) {
       if (
@@ -22,11 +68,11 @@ exports.create = async (req, res, next) => {
     }
     try {
       const document = await Medical_History.create({
-        diagnosis: req.body.diagnosis,
-        medical_condition: req.body.medical_condition,
-        doctor: req.body.doctor,
-        note: req.body.note,
-        AppointmentId: req.body.AppointmentId,
+        diagnosis,
+        medical_condition,
+        doctor,
+        note,
+        AppointmentId,
       });
       return res.send({
         error: false,
@@ -55,6 +101,11 @@ exports.findAll = async (req, res, next) => {
         {
           model: Appointment, // Bảng bạn muốn join
           attributes: ['start_date'], // Chọn thuộc tính bạn muốn hiển thị
+          include: [
+            {
+              model: User, // Bảng bạn muốn join (User)
+            }
+          ],
         },
       ]  
     });
@@ -71,6 +122,12 @@ exports.findOne = async (req, res, next) => {
       where: {
         _id: req.params.id,
       },
+      include: [
+        {
+          model: Appointment,
+
+        }
+      ]
     });
     return res.send(documents);
   } catch (error) {
@@ -168,5 +225,30 @@ exports.update = async (req, res, next) => {
     }
   } catch (error) {
     return next(createError(400, "Error update"));
+  }
+};
+
+exports.findAllByUserId = async (req, res, next) => {
+  try {
+    const UserId = req.params.UserId;
+
+    const documents = await Medical_History.findAll({
+      include: [
+        {
+          model: Appointment,
+          include: [
+            {
+              model: User,
+              where: { _id: UserId }, // Filter by the User's ID
+            },
+          ],
+        },
+      ],
+    });
+
+    return res.send(documents);
+  } catch (error) {
+    console.log(error);
+    return next(createError(400, "Error finding all medicals by user!"));
   }
 };

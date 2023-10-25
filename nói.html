@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech Recognition Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Thêm liên kết đến tệp CSS của Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom styling for the result text */
+        #resultText {
+            margin-top: 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: 1px solid black;
+            width: 550px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Speech Recognition Example</h1>
+        <button id="startButton" class="btn btn-outline-info">Start Listening</button>
+        <p id="resultText" class="mt-3">Recognition result will appear here.</p>
+    </div>
+
+    <!-- Thêm liên kết đến thư viện JavaScript của Bootstrap và thư viện jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Lấy tham chiếu đến các phần tử trên giao diện
+        const startButton = document.getElementById('startButton');
+        const resultText = document.getElementById('resultText');
+
+        let recognition; // Đối tượng nhận dạng giọng nói
+        let isListening = false; // Trạng thái đang nghe
+
+        // Kiểm tra xem trình duyệt có hỗ trợ Web Speech API không
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+
+            // Cấu hình các thiết lập nhận dạng giọng nói
+            recognition.continuous = true; // Sẽ ngừng nghe sau khi dừng nói
+            recognition.interimResults = true;
+            recognition.lang = 'vi-VN'; // Ngôn ngữ mặc định là tiếng Anh
+
+            // Xử lý sự kiện khi có kết quả nhận dạng
+            recognition.onresult = event => {
+                const lastResultIndex = event.results.length - 1;
+                const lastTranscript = event.results[lastResultIndex][0].transcript;
+                resultText.textContent = 'You said: ' + lastTranscript;
+                
+            };
+
+            // Xử lý sự kiện khi có lỗi trong quá trình nhận dạng
+            recognition.onerror = event => {
+                resultText.textContent = 'Error occurred: ' + event.error;
+            };
+
+            // Xử lý sự kiện khi bắt đầu hoặc kết thúc nhận dạng
+            startButton.addEventListener('click', () => {
+                if (isListening) {
+                    recognition.stop();
+                    startButton.textContent = 'Start Listening';
+                } else {
+                    recognition.start();
+                    startButton.textContent = 'Stop Listening';
+                }
+                isListening = !isListening;
+            });
+        } else {
+            resultText.textContent = 'Web Speech API is not supported in this browser.';
+            startButton.disabled = true;
+        }
+    </script>
+</body>
+</html>

@@ -47,8 +47,11 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
         />
         <Search
           class="ml-3"
@@ -67,20 +70,22 @@
           <span id="delete-all" class="mx-2">Xoá</span>
         </button>
         <!-- <DeleteAll :items="data.items" /> -->
-        <!-- <button
+        <button
           type="button"
-          class="btn btn-outline-primary"
+          class="btn btn-outline-primary ml-2"
           data-toggle="modal"
-          data-target="#modal-addmember"
+          data-target="#modal-addvacc"
         >
           <span id="add" class="mx-2">Thêm</span>
-        </button> -->
-        <Add
+        </button>
+        <!-- <Add
           :item="data.itemAdd"
           :mqh="data.relationship"
           :fam="data.familyadd"
           @create="create"
-        />
+        /> -->
+        <Add :item="data.itemAdd" @create="create"/>
+        <AddApp :item="data.itemAddapp" @create2="create2"/>
       </div>
     </div>
     <!-- Table -->
@@ -123,12 +128,13 @@
 </template>
 
 <script>
-import Table from "../../components/table/tbl_famrls.vue";
+import Table from "../../components/table/tbl_vacc.vue";
 import Search from "../../components/form/search.vue";
 import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import { reactive, computed, onBeforeMount } from "vue";
 import Vaccination from "../../services/vaccination.service";
+import Appointment from "../../services/appointment.service";
 import {
   http_create,
   http_update,
@@ -142,6 +148,10 @@ import {
   alert_error,
 } from "../../assets/js/common.alert";
 import Edit from "./edit.vue";
+import Add from "./add.vue";
+import AddApp from "./add_app.vue";
+import { formatCreatedAt } from "../../assets/js/common.format";
+import Medical from "../../services/medical.service";
 export default {
   components: {
     Table,
@@ -149,6 +159,8 @@ export default {
     Select,
     Pagination,
     Edit,
+    Add,
+    AddApp
   },
   setup() {
     const data = reactive({
@@ -162,6 +174,7 @@ export default {
       searchText: "",
       activeMenu: 1,
       activeEdit: false,
+      itemAdd: {},
       editValue: {
         _id: "",
         vaccine: "",
@@ -169,6 +182,7 @@ export default {
         doctor: "",
         note: "",
       },
+      itemAddapp: {}
     });
     // computed
     const toString = computed(() => {
@@ -224,8 +238,258 @@ export default {
     });
 
     // Methods
+    const create2 = async () => {
+      const id = sessionStorage.getItem("UserId");
+      const dataapp = {
+        appointment_type: data.itemAddapp.appointment_type,
+        start_date: data.itemAddapp.start_date,
+        place: data.itemAddapp.place,
+        status: data.itemAddapp.status,
+        note: data.itemAddapp.note,
+        UserId: id
+      }
+      const result = await http_create(Appointment, dataapp);
+      if(!result.error){
+        alert_success(`Tạo Cuộc Hẹn`, `Bạn Đã Tạo Thành Công Cuộc Hẹn ${result.document.appointment_type} Ngày ${result.document.start_date}`);
+        if(result.document.appointment_type === "Tiêm Ngừa Covid 19"){
+          const VaccData = {
+            vaccination: "Tiêm Ngừa Covid",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0"
+          }
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if(result.document.appointment_type === "Tiêm Ngừa Uốn Ván"){
+          const VaccData = {
+            vaccination: "Tiêm Ngừa Uốn Ván",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517"
+          }
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if(result.document.appointment_type === "Tiêm Ngừa Viêm Gan"){
+          const VaccData = {
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853"
+          }
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if(result.document.appointment_type === "Tiêm Ngừa Nhiễm Khuẩn"){
+          const VaccData = {
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9"
+          }
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if(result.document.appointment_type === "Tiêm Ngừa Bệnh Truyền Nhiễm"){
+          const VaccData = {
+            vaccination: "N/A",
+            vaccine: "N/A",
+            doses: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e"
+          }
+          const CreateVaccination = await http_create(Vaccination, VaccData);
+          // console.log("Data Vacc:", CreateVaccination);
+        } else if(result.document.appointment_type === "Khám Bệnh"){
+          const MedicalData = {
+            diagnosis: "N/A",
+            medical_condition: "N/A",
+            doctor: "N/A",
+            note: "",
+            AppointmentId: result.document._id,
+          }
+          const CreateMedical = await http_create(Medical, MedicalData);
+          // console.log("Medical:", CreateMedical);
+        }
+      } else {
+        alert_error(`Tạo Cuộc Hẹn`, result.msg)
+      }
+      await refresh();
+    }
     const create = async () => {
-      console.log(create);
+      const id = sessionStorage.getItem("UserId");
+      const AppData = {
+        appointment_type: "-",
+        start_date: "-",
+        place: "-",
+        status: "-",
+        note: "",
+        UserId: id,
+      }
+      const createApp = await http_create(Appointment, AppData);
+      const createAppId = createApp.document._id;
+      const created = createApp.document.createdAt;
+      const formattedCreatedAt = formatCreatedAt(created);
+      if(data.itemAdd.name === "Covid 19"){
+        const putAppData = {
+          appointment_type: "Tiêm Ngừa Covid 19",
+          start_date: formattedCreatedAt,
+          place: "N/A",
+          status: "Đã Hoàn Thành",
+          note: "",
+          UserId: id,
+        };
+        const updateApp = await http_update(Appointment, createAppId, putAppData);
+        const vaccData = {
+          vaccination: data.itemAdd.vaccination,
+          vaccine: data.itemAdd.vaccine,
+          doses: data.itemAdd.doses,
+          doctor: data.itemAdd.doctor,
+          note: data.itemAdd.note,
+          AppointmentId: createAppId,
+          VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0"
+        }
+        const createVacc = await http_create(Vaccination, vaccData);
+        if(!createVacc.error){
+          alert_success(`Thêm Lịch Sử Tiêm Ngừa`, createVacc.msg);
+          await refresh();
+        }else{
+          alert_error(`Lỗi`, createVacc.msg);
+        }
+      } else if (data.itemAdd.name === "Viêm Gan"){
+        const putAppData = {
+          appointment_type: "Tiêm Ngừa Viêm Gan",
+          start_date: formattedCreatedAt,
+          place: "N/A",
+          status: "Đã Hoàn Thành",
+          note: "",
+          UserId: id,
+        };
+        const updateApp = await http_update(Appointment, createAppId, putAppData);
+        const vaccData = {
+          vaccination: data.itemAdd.vaccination,
+          vaccine: data.itemAdd.vaccine,
+          doses: data.itemAdd.doses,
+          doctor: data.itemAdd.doctor,
+          note: data.itemAdd.note,
+          AppointmentId: createAppId,
+          VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853"
+        }
+        const createVacc = await http_create(Vaccination, vaccData);
+        if(!createVacc.error){
+          alert_success(`Thêm Lịch Sử Tiêm Ngừa`, createVacc.msg);
+          await refresh();
+        }else{
+          alert_error(`Lỗi`, createVacc.msg);
+        }
+      } else if (data.itemAdd.name === "Nhiễm Khuẩn"){
+        const putAppData = {
+          appointment_type: "Tiêm Ngừa Nhiễm Khuẩn",
+          start_date: formattedCreatedAt,
+          place: "N/A",
+          status: "Đã Hoàn Thành",
+          note: "",
+          UserId: id,
+        };
+        const updateApp = await http_update(Appointment, createAppId, putAppData);
+        const vaccData = {
+          vaccination: data.itemAdd.vaccination,
+          vaccine: data.itemAdd.vaccine,
+          doses: data.itemAdd.doses,
+          doctor: data.itemAdd.doctor,
+          note: data.itemAdd.note,
+          AppointmentId: createAppId,
+          VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9"
+        }
+        const createVacc = await http_create(Vaccination, vaccData);
+        if(!createVacc.error){
+          alert_success(`Thêm Lịch Sử Tiêm Ngừa`, createVacc.msg);
+          await refresh();
+        }else{
+          alert_error(`Lỗi`, createVacc.msg);
+        }
+      } else if (data.itemAdd.name === "Truyền Nhiễm"){
+        const putAppData = {
+          appointment_type: "Tiêm Ngừa Truyền Nhiễm",
+          start_date: formattedCreatedAt,
+          place: "N/A",
+          status: "Đã Hoàn Thành",
+          note: "",
+          UserId: id,
+        };
+        const updateApp = await http_update(Appointment, createAppId, putAppData);
+        const vaccData = {
+          vaccination: data.itemAdd.vaccination,
+          vaccine: data.itemAdd.vaccine,
+          doses: data.itemAdd.doses,
+          doctor: data.itemAdd.doctor,
+          note: data.itemAdd.note,
+          AppointmentId: createAppId,
+          VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e"
+        }
+        const createVacc = await http_create(Vaccination, vaccData);
+        if(!createVacc.error){
+          alert_success(`Thêm Lịch Sử Tiêm Ngừa`, createVacc.msg);
+          await refresh();
+        }else{
+          alert_error(`Lỗi`, createVacc.msg);
+        }
+      } else if (data.itemAdd.name === "Uốn Ván"){
+        const putAppData = {
+          appointment_type: "Tiêm Ngừa Uốn Ván",
+          start_date: formattedCreatedAt,
+          place: "N/A",
+          status: "Đã Hoàn Thành",
+          note: "",
+          UserId: id,
+        };
+        const updateApp = await http_update(Appointment, createAppId, putAppData);
+        const vaccData = {
+          vaccination: data.itemAdd.vaccination,
+          vaccine: data.itemAdd.vaccine,
+          doses: data.itemAdd.doses,
+          doctor: data.itemAdd.doctor,
+          note: data.itemAdd.note,
+          AppointmentId: createAppId,
+          VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517"
+        }
+        const createVacc = await http_create(Vaccination, vaccData);
+        if(!createVacc.error){
+          alert_success(`Thêm Lịch Sử Tiêm Ngừa`, createVacc.msg);
+          await refresh();
+        }else{
+          alert_error(`Lỗi`, createVacc.msg);
+        }
+      } 
+      // if(data.itemAdd.vaccination.includes("Covid 19")){
+      //   const vaccData = {
+      //     vaccination: data.itemAdd.vaccination,
+      //     vaccine: data.itemAdd.vaccine,
+      //     doses: data.itemAdd.doses,
+      //     doctor: data.itemAdd.doctor,
+      //     note: data.itemAdd.note,
+      //     AppointmentId: createAppId,
+      //     VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0",
+      //   }
+      //   const createVacc = await http_create(Vaccination, vaccData);
+      //   if(!createVacc.error){
+      //     alert_success(`Thêm Lịch Sử Tiêm Ngừa`, createVacc.msg);
+      //     await refresh();
+      //   }else{
+      //     alert_error(`Lỗi`, createVacc.msg);
+      //   }
+      // } 
     };
 
     const edit = async () => {
@@ -257,8 +521,11 @@ export default {
       console.log("updating", item);
     };
     const refresh = async () => {
+      const id = sessionStorage.getItem("UserId");
       data.items = await http_getAll(Vaccination);
-      // console.log(data.items);
+      data.items = data.items.filter(item => item.Appointment.UserId === id);
+      console.log(data.items);
+
     };
     onBeforeMount(async () => {
       refresh();
@@ -269,6 +536,7 @@ export default {
       edit,
       update,
       create,
+      create2,
       deleteOne,
     };
   },

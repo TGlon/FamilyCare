@@ -14,4 +14,6 @@ router
   .get(users.findOne)
   .delete(users.deleteOne);
 
+  router.get("/find/:name/:passport", users.findOneByPassport);
+
 module.exports = router;

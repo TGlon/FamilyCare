@@ -25,7 +25,21 @@
       </router-link>
     </div>
     <!-- Filter -->
-
+    <!-- <span class="mx-3 mb-3 h6">Lọc Loại Dị Ứng</span> -->
+    <!-- <div class="d-flex mx-3">
+      <div class="form-group w-100 mr-2">
+        <Select
+          :title="`Lọc theo Loại Dị Ứng`"
+          :entryValue="selectedAllergyType"
+          :options="data.allergy_type"
+          @update:entryValue="(value) => (selectedAllergyType = value)"
+          @refresh="
+            (selectedAllergyType = 'Loại Dị Ứng'), (data.currentPage = 1)
+          "
+          style="height: 35px; width: 150px"
+        />
+      </div>
+    </div> -->
     <!-- Search -->
     <div class="border-hr mb-3"></div>
     <div class="d-flex justify-content-between mx-3 mb-3">
@@ -54,8 +68,22 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
+        />
+        <Select
+          class="d-flex justify-content-start"
+          :title="`Lọc theo Loại Dị Ứng`"
+          :entryValue="selectedAllergyType"
+          :options="data.allergy_type"
+          @update:entryValue="(value) => (selectedAllergyType = value)"
+          @refresh="
+            (selectedAllergyType = 'Loại Dị Ứng'), (data.currentPage = 1)
+          "
+          style="width: 150px; margin-left: 15px"
         />
         <Search
           class="ml-3"
@@ -135,7 +163,7 @@ import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import Add from "./add_allergy.vue";
 import Edit from "./edit_allergy.vue";
-import { reactive, computed, onBeforeMount } from "vue";
+import { ref, reactive, computed, onBeforeMount, watch } from "vue";
 import {
   http_create,
   http_getAll,
@@ -181,12 +209,14 @@ export default {
         doctor: "",
         description: "",
       },
+      allergy_type: {},
     });
+
     // computed
     const toString = computed(() => {
       console.log("Starting search");
       return data.items.map((value, index) => {
-        return [value.allergy_type].join("").toLocaleLowerCase();
+        return [value.description].join("").toLocaleLowerCase();
       });
     });
     const filter = computed(() => {
@@ -234,14 +264,14 @@ export default {
         severity: data.itemAdd.severity,
         doctor: data.itemAdd.doctor,
         description: data.itemAdd.description,
-        UserId: id
-      }
+        UserId: id,
+      };
       const result = await http_create(Allergy, dataAlle);
-      if(!result.error){
-        alert_success("Tạo Thành Công Hồ Sơ Bệnh Dị Ứng", result.msg)
-        refresh()
-      }else{
-        alert_error("Lỗi", result.msg)
+      if (!result.error) {
+        alert_success("Tạo Thành Công Hồ Sơ Bệnh Dị Ứng", result.msg);
+        refresh();
+      } else {
+        alert_error("Lỗi", result.msg);
       }
     };
     const deleteOne = async (_id) => {
@@ -282,36 +312,80 @@ export default {
       );
       if (isConfirmed) {
         // Lặp qua data.items và xóa tất cả
-        if(data.items.length == 0){
-          alert_error("Xoá Tất Cả Hồ Sơ Dị Ứng", "Không có hồ sơ nào để xóa!")
+        if (data.items.length == 0) {
+          alert_error("Xoá Tất Cả Hồ Sơ Dị Ứng", "Không có hồ sơ nào để xóa!");
         }
         for (const item of data.items) {
           const result = await http_deleteOne(Allergy, item._id);
           if (!result.error) {
             console.log(`Đã xoá hồ sơ thành công`);
           } else {
-            console.error(
-              `Lỗi khi xoá hồ sơ: ${result.msg}`
-            );
+            console.error(`Lỗi khi xoá hồ sơ: ${result.msg}`);
           }
         }
         await refresh();
       }
     };
+
+    // lọc
+    const selectedAllergyType = ref("Loại Dị Ứng");
+    const entryValueAllergyType = ref("");
     const refresh = async () => {
       data.items = await http_getAll(Allergy);
+      const allergyTypes = await http_getAll(Allergy);
+
+      // Create a Set to store unique allergy_type values
+      const uniqueAllergyTypes = new Set();
+
+      // Iterate through the allergyTypes and add unique values to the Set
+      allergyTypes.forEach((value) => {
+        uniqueAllergyTypes.add(value.allergy_type);
+      });
+
+      // Map the unique values to the format you need for the Select component
+      data.allergy_type = [...uniqueAllergyTypes].map((value, index) => {
+        return {
+          name: value,
+          value: value,
+        };
+      });
+
+      selectedAllergyType.value = "Loại Dị Ứng";
+      entryValueAllergyType.value = "";
     };
+
+    watch(selectedAllergyType, async (newAllergyType) => {
+      if (newAllergyType === "Loại Dị Ứng") {
+        // If 'Loại Dị Ứng' is selected, reset the filter and refresh the data.
+        data.currentPage = 1;
+        await refresh();
+      } else {
+        // Filter the data based on the selected allergy type.
+        data.currentPage = 1;
+        data.items = await http_getAll(Allergy);
+
+        if (newAllergyType !== "Loại Dị Ứng") {
+          data.items = data.items.filter((record) => {
+            return record.allergy_type === newAllergyType;
+          });
+        }
+      }
+    });
+
     onBeforeMount(async () => {
       refresh();
       // console.log(data.items);
     });
+    const activeMenu = ref(2);
     return {
       data,
       setPages,
       create,
       deleteOne,
       edit,
-      deleteAll
+      deleteAll,
+      activeMenu,
+      selectedAllergyType,
     };
   },
 };

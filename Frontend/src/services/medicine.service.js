@@ -22,6 +22,17 @@ class MedicineService {
     async delete(id) {
         return (await this.api.delete(`/${id}`)).data;
     }
+    // Thêm phương thức để lấy tất cả thuốc theo MedicalHistoryId
+    async getAllByMedicalHistoryId(MedicalHistoryId) {
+        return (await this.api.get(`/medical-history/${MedicalHistoryId}`)).data;
+    }
+    async createWithNameOnly(name) {
+        return (await this.api.post("/create", { name })).data;
+    }
+     // Thêm phương thức để lấy tất cả thuốc theo UserId
+     async getAllMedicineByUserId(userId) {
+        return (await this.api.get(`/user/${userId}/medicines`)).data;
+    }
 }
 
 export default new MedicineService();

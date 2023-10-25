@@ -1,5 +1,7 @@
 //model
 const {} = require("./app/models/index.model");
+//
+
 // npm packages
 const createError = require("http-errors");
 const express = require("express");
@@ -11,8 +13,66 @@ const app = express();
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
+//socket
+const notification = require("./app/controllers/notification.controller");
+const moment = require("moment");
 const http = require("http");
 const server = http.createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
+const cron = require("node-cron");
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+  cron.schedule("10 16 * * *", () => {
+    socket.emit("notiEveryDay");
+  });
+  // Listen for the "appointment" event
+  socket.on('appointment', (NoticeData) => {
+    console.log('Received filtered appointments:', NoticeData);
+    // const today = moment(); //ngày hiện tại
+    // console.log(today);
+    // for(const appointment of filteredAppointments){
+    //   const getDateAppointment = moment(appointment.start_date, "YYYY-MM-DD");
+      // console.log(getDateAppointment);
+      // Ngày tháng năm của các cuộc hẹn của khách hàng
+      // const dateAppUser = {
+      //   year: getDateAppointment.year(),
+      //   month: getDateAppointment.month(),
+      //   date: getDateAppointment.date()
+      // };
+      // console.log("Ngày cuộc hẹn:",dateAppUser);
+      // // Ngày tháng năm hiện tại
+      // const todayDate = {
+      //   year: today.year(),
+      //   month: today.month(),
+      //   date: today.date(),
+      // };
+      // console.log("Ngày hôm nay", todayDate);
+      // if (today.isBefore(getDateAppointment)) {
+        // console.log("Ngày hiện tại nhỏ hơn ngày cuộc hẹn.", getDateAppointment.format("YYYY-MM-DD"));
+        // console.log("Additional Information:");
+        // console.log("Appointment ID: " + appointment._id);
+        // console.log("Appointment Type: " + appointment.appointment_type);
+        // console.log("Start_date: " + appointment.start_date);
+        // console.log("Place:" + appointment.place);
+        // console.log("Status:" + appointment.status);
+        // console.log("Note:" + appointment.note);
+        // console.log("/////////////////////////////////////");
+        // console.log(appointment);
+      // }
+    // }
+    // Broadcast the event to all connected clients
+    io.emit('appointmentNoti');
+  });
+})
+// const http = require("http");
+// const server = http.createServer(app);
 // initialize router
 const AccountRouter = require('./app/routes/account.route');
 const UserRouter = require('./app/routes/user.route');
@@ -57,6 +117,7 @@ app.use('/api/role_permissions', Role_PermissionRouter);
 app.use('/api/login', LoginRouter);
 // start server
 const {config} = require("./app/config/index");
+const { log } = require("console");
 const PORT = config.app.port;
 server.listen(PORT, () => {
   console.log(`Server is listening on port 3000`);

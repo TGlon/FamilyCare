@@ -86,9 +86,11 @@
                 Đăng Nhập
               </button>
               <p style="color: aliceblue; font-weight: bold; margin-top: 15px">
-  Cần một tài khoản? <router-link to="/signup" style="color: #7091f5">Đăng Ký</router-link>
-</p>
-
+                Cần một tài khoản?
+                <router-link to="/signup" style="color: #7091f5"
+                  >Đăng Ký</router-link
+                >
+              </p>
             </form>
           </div>
         </div>

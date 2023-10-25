@@ -22,6 +22,12 @@ class UsrFamService {
     async getAllByFamilyId(familyId) {
         return (await this.api.get(`/family/${familyId}`)).data
     }
+    async getOneByUserId(userId) {
+        return (await this.api.get(`/usr/${userId}`)).data;
+    }
+    async deleteOneUsrFam(UserId, FamilyId) {
+        return (await this.api.delete(`/${UserId}/${FamilyId}`)).data;
+    }
 }
 
 export default new UsrFamService();

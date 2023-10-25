@@ -25,6 +25,9 @@ class UserService {
     async findAllByFamily(FamilyId) {
         return (await this.api.get(`/family/${FamilyId}`)).data;
     }
+    async findOneByPassport(name, passport) {
+        return (await this.api.get(`/find/${name}/${passport}`)).data;
+    }
 }
 
 export default new UserService();

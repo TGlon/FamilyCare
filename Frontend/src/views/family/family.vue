@@ -116,7 +116,7 @@ import Table from "../../components/table/tbl_fam.vue";
 import Pagination from "../../components/table/pagination.vue";
 import Add from "../family/addfam.vue";
 import Edit from "../family/editfam.vue";
-import { reactive, computed, onBeforeMount } from "vue";
+import { ref, reactive, computed, onBeforeMount } from "vue";
 import {
   http_create,
   http_getOne,
@@ -246,7 +246,7 @@ export default {
             const userFamilyData = {
               FamilyId: familyResult.document._id, // Lấy _id của gia đình vừa tạo
               UserId: idne,
-              relationship: "Chủ Hộ",
+              relationship: " ",
             };
 
             const userFamilyResult = await http_create(
@@ -336,13 +336,14 @@ export default {
     onBeforeMount(async () => {
       refresh();
     });
+    const activeMenu = ref(2);
     return {
       data,
       setPages,
       deleteOne,
       edit,
       update,
-      create,
+      create,activeMenu
     };
   },
 };

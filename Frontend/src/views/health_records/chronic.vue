@@ -82,8 +82,22 @@
               value: 'All',
             },
           ]"
+          style="width: 125px"
+          :title="`Số bản ghi`"
           @update:entryValue="(value) => (data.entryValue = value)"
           :entryValue="data.entryValue"
+          @refresh="(data.entryValue = 'All'), (data.currentPage = 1)"
+        />
+        <Select
+          class="d-flex justify-content-start"
+          :title="`Lọc theo Bệnh Mãn Tính`"
+          :entryValue="selectedAllergyType"
+          :options="data.name"
+          @update:entryValue="(value) => (selectedAllergyType = value)"
+          @refresh="
+            (selectedAllergyType = 'Bệnh Mãn Tính'), (data.currentPage = 1)
+          "
+          style="width: 150px; margin-left: 15px"
         />
         <Search
           class="ml-3"
@@ -163,7 +177,7 @@ import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import Add from "./add_chronic.vue";
 import Edit from "./edit_chronic.vue";
-import { reactive, computed, onBeforeMount } from "vue";
+import { ref, reactive, computed, onBeforeMount, watch } from "vue";
 import {
   http_create,
   http_getAll,
@@ -209,12 +223,13 @@ export default {
         blood_type: "",
         heart_rate: "",
       },
+      name: {},
     });
     // computed
     const toString = computed(() => {
       console.log("Starting search");
       return data.items.map((value, index) => {
-        return [value.recording_date].join("").toLocaleLowerCase();
+        return [value.description].join("").toLocaleLowerCase();
       });
     });
     const filter = computed(() => {
@@ -325,20 +340,62 @@ export default {
         await refresh();
       }
     };
+    // lọc
+    const selectedAllergyType = ref("Bệnh Mãn Tính");
+    const entryValueAllergyType = ref("");
     const refresh = async () => {
       data.items = await http_getAll(Chronic);
+      const allergyTypes = await http_getAll(Chronic);
+
+      // Create a Set to store unique name values
+      const uniqueAllergyTypes = new Set();
+
+      // Iterate through the allergyTypes and add unique values to the Set
+      allergyTypes.forEach((value) => {
+        uniqueAllergyTypes.add(value.name);
+      });
+
+      // Map the unique values to the format you need for the Select component
+      data.name = [...uniqueAllergyTypes].map((value, index) => {
+        return {
+          name: value,
+          value: value,
+        };
+      });
+
+      selectedAllergyType.value = "Bệnh Mãn Tính";
+      entryValueAllergyType.value = "";
     };
+    watch(selectedAllergyType, async (newAllergyType) => {
+      if (newAllergyType === "Bệnh Mãn Tính") {
+        // If 'Loại Dị Ứng' is selected, reset the filter and refresh the data.
+        data.currentPage = 1;
+        await refresh();
+      } else {
+        // Filter the data based on the selected allergy type.
+        data.currentPage = 1;
+        data.items = await http_getAll(Chronic);
+
+        if (newAllergyType !== "Bệnh Mãn Tính") {
+          data.items = data.items.filter((record) => {
+            return record.name === newAllergyType;
+          });
+        }
+      }
+    });
     onBeforeMount(async () => {
       refresh();
       // console.log(data.items);
     });
+    const activeMenu = ref(3);
     return {
       data,
       setPages,
       create,
       deleteOne,
       edit,
-      deleteAll
+      deleteAll,
+      activeMenu,selectedAllergyType
     };
   },
 };

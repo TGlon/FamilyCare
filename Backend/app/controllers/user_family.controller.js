@@ -53,7 +53,16 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const documents = await User_Family.findAll({
-      include: [],
+      // include: [
+      //   {
+      //     model: User,
+      //     as: 'User'
+      //   },
+      //   {
+      //     model: Family,
+      //     as: 'Family'
+      //   },
+      // ],
     });
     return res.send(
       documents.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
@@ -109,9 +118,8 @@ exports.deleteOne = async (req, res, next) => {
   try {
     const result = await User_Family.destroy({
       where: {
-        UserId: req.body.UserId,
-        FamilyId: req.body.FamilyId,
-        relationship: req.body.relationship
+        UserId: req.params.UserId,
+        FamilyId: req.params.FamilyId
       },
     });
 
@@ -161,3 +169,21 @@ exports.deleteOne = async (req, res, next) => {
 //     });
 //   }
 // };
+exports.findOneByUserId = async (req, res, next) => {
+  const { UserId } = req.params; // Lấy UserId từ tham số trong URL hoặc request body
+  try {
+    const document = await User_Family.findOne({
+      where: { UserId: UserId }, // Lọc theo UserId
+    });
+
+    if (!document) {
+      // Nếu không tìm thấy quan hệ cho UserId cụ thể
+      return next(createError(404, "UserFamily not found for the specified UserId"));
+    }
+
+    return res.send(document);
+  } catch (error) {
+    console.log(error);
+    return next(createError(400, "Error finding UserFamily by UserId"));
+  }
+};

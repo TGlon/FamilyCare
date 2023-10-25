@@ -138,8 +138,9 @@ exports.update = async (req, res, next) => {
     start_date,
     place,
     status,
-    note,
+    
   } = req.body;
+  const note = req.body.note || '';
   try {
     let appointments = [
       await Appointment.findOne({
@@ -163,12 +164,12 @@ exports.update = async (req, res, next) => {
     if (appointments.length == 0) {
       const document = await Appointment.update(
         {
-            appointment_type: req.body.appointment_type,
-            start_date: req.body.start_date,
-            place: req.body.place,
-            status: req.body.status,
-            note: req.body.note,
-            UserId: req.body.UserId,
+            appointment_type,
+            start_date,
+            place,
+            status,
+            note,
+            UserId,
         },
         { where: { _id: req.params.id }, returning: true }
       );

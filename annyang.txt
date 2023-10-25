@@ -1,0 +1,66 @@
+
+<script>
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import annyang from "annyang";
+
+export default {
+  props: {
+    item: {
+      type: Object,
+      default: {},
+    },
+  },
+  setup(props, ctx) {
+    const item = ref(props.item);
+
+    const create = () => {
+      ctx.emit("create1");
+      console.log("Thêm Thành Công");
+    };
+    const isVoiceRecognitionEnabled = ref(false);
+    const toggleVoiceRecognition = () => {
+      if (isVoiceRecognitionEnabled.value) {
+        annyang.abort(); // Tắt giọng nói
+      } else {
+        setupVoiceRecognition(); // Bật giọng nói
+      }
+      isVoiceRecognitionEnabled.value = !isVoiceRecognitionEnabled.value; // Đảo ngược trạng thái
+    };
+    // Định nghĩa lệnh giọng nói và xử lý chúng
+    const setupVoiceRecognition = () => {
+      const commands = {
+        "điền chuẩn đoán *diagnosis": (diagnosis) => {
+          item.value.diagnosis = diagnosis;
+        },
+        "điền tình trạng sức khỏe *medical_condition": (medicalCondition) => {
+          item.value.medical_condition = medicalCondition;
+        },
+        "điền bác sĩ *doctor": (doctor) => {
+          item.value.doctor = doctor;
+        },
+        "điền ghi chú *note": (note) => {
+          item.value.note = note;
+        },
+      };
+      annyang.setLanguage("vi");
+      annyang.addCommands(commands);
+      annyang.start();
+    };
+
+    // onMounted(() => {
+    //   setupVoiceRecognition();
+    // });
+
+    // onBeforeUnmount(() => {
+    //   annyang.abort();
+    // });
+
+    return {
+      item,
+      create,
+      isVoiceRecognitionEnabled,
+      toggleVoiceRecognition,
+    };
+  },
+};
+</script>

@@ -11,5 +11,6 @@ router.route('/:id')
     .put(medicals.update)
     .delete(medicals.deleteOne)
     .get(medicals.findOne)
-
+router.route('/byUserId/:UserId')
+    .get(medicals.findAllByUserId);
 module.exports = router;
