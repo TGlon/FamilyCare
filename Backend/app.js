@@ -1,7 +1,7 @@
 //model
 const {} = require("./app/models/index.model");
 //
-
+const { User, Appointment } = require("./app/models/index.model");
 // npm packages
 const createError = require("http-errors");
 const express = require("express");
@@ -15,6 +15,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 //socket
 const notification = require("./app/controllers/notification.controller");
+//mail
+const nodemailer = require("nodemailer");
 const moment = require("moment");
 const http = require("http");
 const server = http.createServer(app);
@@ -29,94 +31,117 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
-  cron.schedule("10 16 * * *", () => {
+  cron.schedule("52 17 * * *", () => {
     socket.emit("notiEveryDay");
   });
   // Listen for the "appointment" event
-  socket.on('appointment', (NoticeData) => {
-    console.log('Received filtered appointments:', NoticeData);
-    // const today = moment(); //ngày hiện tại
-    // console.log(today);
-    // for(const appointment of filteredAppointments){
-    //   const getDateAppointment = moment(appointment.start_date, "YYYY-MM-DD");
-      // console.log(getDateAppointment);
-      // Ngày tháng năm của các cuộc hẹn của khách hàng
-      // const dateAppUser = {
-      //   year: getDateAppointment.year(),
-      //   month: getDateAppointment.month(),
-      //   date: getDateAppointment.date()
-      // };
-      // console.log("Ngày cuộc hẹn:",dateAppUser);
-      // // Ngày tháng năm hiện tại
-      // const todayDate = {
-      //   year: today.year(),
-      //   month: today.month(),
-      //   date: today.date(),
-      // };
-      // console.log("Ngày hôm nay", todayDate);
-      // if (today.isBefore(getDateAppointment)) {
-        // console.log("Ngày hiện tại nhỏ hơn ngày cuộc hẹn.", getDateAppointment.format("YYYY-MM-DD"));
-        // console.log("Additional Information:");
-        // console.log("Appointment ID: " + appointment._id);
-        // console.log("Appointment Type: " + appointment.appointment_type);
-        // console.log("Start_date: " + appointment.start_date);
-        // console.log("Place:" + appointment.place);
-        // console.log("Status:" + appointment.status);
-        // console.log("Note:" + appointment.note);
-        // console.log("/////////////////////////////////////");
-        // console.log(appointment);
-      // }
-    // }
-    // Broadcast the event to all connected clients
-    io.emit('appointmentNoti');
+  socket.on("appointment", async (NoticeData) => {
+    // console.log("Received filtered appointments:", NoticeData);
+    const app = await Appointment.findAll();
+    const filteredAppointments = [];
+
+    for (const appointment of app) {
+      if (appointment._id === NoticeData.AppointmentId) {
+        filteredAppointments.push(appointment);
+      }
+    }
+
+    // console.log("Filtered appointments:", filteredAppointments);
+    const usr = await User.findAll();
+    const matchedUsers = [];
+
+    for (const user of usr) {
+      for (const appointment of filteredAppointments) {
+        if (user._id === appointment.UserId) {
+          matchedUsers.push(user);
+        }
+      }
+    }
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "tlong2021315@gmail.com",
+        pass: "mjpxlyyygfyqpwls",
+      },
+    });
+    for (const appointment of filteredAppointments) {
+      const user = matchedUsers.find((u) => u._id === appointment.UserId);
+      if (user) {
+        const startDate = new Date(appointment.start_date);
+        const formattedDate = `${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}`;
+        const mailOptions = {
+          from: "tlong2021315@gmail.com",
+          to: user.email,
+          subject: "Thông Báo Lịch Hẹn Sắp Tới",
+          html: `Dear ${user.name}!
+          <br> Chúng tôi xin gửi thông báo về cuộc hẹn ${appointment.appointment_type} diễn ra vào ngày ${formattedDate}. Chúng tôi rất mong bạn sẽ chú ý thời gian cuộc hẹn quan trọng này để sắp xếp công việc.
+          <br>Thông tin chi tiết về cuộc họp:
+          <br>- Ngày: ${formattedDate}
+          <br>- Địa điểm: ${appointment.place}
+          <br>- ${appointment.note != null ? `Ghi chú: ${appointment.note}` : 'Ghi chú: '}    
+          <br>Xin lỗi nếu thông tin này làm phiền bạn, và nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua địa chỉ email hoặc số điện thoại sau:
+          <br>-Email: tlong2021315@email.com
+          <br>-Số điện thoại: +84 941 636 509
+          <br>
+          <br>Trân trọng,
+          <br>Family Care
+          `,
+        };
+        const info = await transporter.sendMail(mailOptions);
+      }
+    }
+    io.emit("appointmentNoti");
   });
-})
+});
+
 // const http = require("http");
 // const server = http.createServer(app);
 // initialize router
-const AccountRouter = require('./app/routes/account.route');
-const UserRouter = require('./app/routes/user.route');
-const WorkUserRouter = require('./app/routes/work_user.route');
-const CompanyRouter = require('./app/routes/company.route');
-const HealthStatsticsRouter = require('./app/routes/health_statistics.route');
-const AllergyRouter = require('./app/routes/allergy.route');
-const ChronicRouter = require('./app/routes/chronic.route');
-const AppointmentRouter = require('./app/routes/appointment.route');
-const VaccineTypesRouter = require('./app/routes/vaccine_type.route');
-const VaccinationHistoryRouter = require('./app/routes/vacination.route');
-const MedicineTypeRouter = require('./app/routes/medicine_type.route');
-const MedicalHistoryRouter = require('./app/routes/medical_history.route');
-const MedicineRouter = require('./app/routes/medicine.route');
-const FamilyRouter = require('./app/routes/family.route');
-const NotificationRouter = require('./app/routes/notification.route');
-const UserFamilyRouter = require('./app/routes/user_family.route');
-const RoleRouter = require('./app/routes/role.route');
-const Role_PermissionRouter = require('./app/routes/role_permisson.route');
-const PermissionRouter = require('./app/routes/permission.route');
-const LoginRouter = require('./app/routes/login.route');
+const AccountRouter = require("./app/routes/account.route");
+const UserRouter = require("./app/routes/user.route");
+const WorkUserRouter = require("./app/routes/work_user.route");
+const CompanyRouter = require("./app/routes/company.route");
+const HealthStatsticsRouter = require("./app/routes/health_statistics.route");
+const AllergyRouter = require("./app/routes/allergy.route");
+const ChronicRouter = require("./app/routes/chronic.route");
+const AppointmentRouter = require("./app/routes/appointment.route");
+const VaccineTypesRouter = require("./app/routes/vaccine_type.route");
+const VaccinationHistoryRouter = require("./app/routes/vacination.route");
+const MedicineTypeRouter = require("./app/routes/medicine_type.route");
+const MedicalHistoryRouter = require("./app/routes/medical_history.route");
+const MedicineRouter = require("./app/routes/medicine.route");
+const FamilyRouter = require("./app/routes/family.route");
+const NotificationRouter = require("./app/routes/notification.route");
+const UserFamilyRouter = require("./app/routes/user_family.route");
+const RoleRouter = require("./app/routes/role.route");
+const Role_PermissionRouter = require("./app/routes/role_permisson.route");
+const PermissionRouter = require("./app/routes/permission.route");
+const LoginRouter = require("./app/routes/login.route");
+// const MailRouter = require("./app/routes/mail.route");
 // use router
-app.use('/api/accounts', AccountRouter);
-app.use('/api/users', UserRouter);
-app.use('/api/works', WorkUserRouter);
-app.use('/api/companys', CompanyRouter);
-app.use('/api/healthstatistics', HealthStatsticsRouter);
-app.use('/api/allergys', AllergyRouter);
-app.use('/api/chronics', ChronicRouter);
-app.use('/api/appointments', AppointmentRouter);
-app.use('/api/vaccinetypes', VaccineTypesRouter);
-app.use('/api/vaccinationhistories', VaccinationHistoryRouter);
-app.use('/api/medicinetypes', MedicineTypeRouter);
-app.use('/api/medicalhistories', MedicalHistoryRouter);
-app.use('/api/medicines', MedicineRouter);
-app.use('/api/families', FamilyRouter);
-app.use('/api/notifications', NotificationRouter);
-app.use('/api/userfamilies', UserFamilyRouter);
-app.use('/api/roles', RoleRouter);
-app.use('/api/permissions', PermissionRouter);
-app.use('/api/role_permissions', Role_PermissionRouter);
-app.use('/api/login', LoginRouter);
+app.use("/api/accounts", AccountRouter);
+app.use("/api/users", UserRouter);
+app.use("/api/works", WorkUserRouter);
+app.use("/api/companys", CompanyRouter);
+app.use("/api/healthstatistics", HealthStatsticsRouter);
+app.use("/api/allergys", AllergyRouter);
+app.use("/api/chronics", ChronicRouter);
+app.use("/api/appointments", AppointmentRouter);
+app.use("/api/vaccinetypes", VaccineTypesRouter);
+app.use("/api/vaccinationhistories", VaccinationHistoryRouter);
+app.use("/api/medicinetypes", MedicineTypeRouter);
+app.use("/api/medicalhistories", MedicalHistoryRouter);
+app.use("/api/medicines", MedicineRouter);
+app.use("/api/families", FamilyRouter);
+app.use("/api/notifications", NotificationRouter);
+app.use("/api/userfamilies", UserFamilyRouter);
+app.use("/api/roles", RoleRouter);
+app.use("/api/permissions", PermissionRouter);
+app.use("/api/role_permissions", Role_PermissionRouter);
+app.use("/api/login", LoginRouter);
+// app.use("/api/mail", MailRouter);
 // start server
-const {config} = require("./app/config/index");
+const { config } = require("./app/config/index");
 const { log } = require("console");
 const PORT = config.app.port;
 server.listen(PORT, () => {

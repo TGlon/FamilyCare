@@ -100,7 +100,7 @@ exports.findAll = async (req, res, next) => {
       include: [
         {
           model: Appointment, // Bảng bạn muốn join
-          attributes: ['start_date'], // Chọn thuộc tính bạn muốn hiển thị
+          attributes: ['start_date', 'UserId'], // Chọn thuộc tính bạn muốn hiển thị
           include: [
             {
               model: User, // Bảng bạn muốn join (User)

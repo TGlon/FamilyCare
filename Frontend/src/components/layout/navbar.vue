@@ -362,7 +362,7 @@ export default {
         <span class="material-symbols-outlined cursor-pointer">home</span>
       </router-link>
 
-      <a class="text-dark d-flex align-items-center mx-2"
+      <!-- <a class="text-dark d-flex align-items-center mx-2"
         ><span class="material-symbols-outlined cursor-pointer">
           translate
         </span></a
@@ -371,7 +371,7 @@ export default {
         ><span class="material-symbols-outlined cursor-pointer">
           light_mode
         </span></a
-      >
+      > -->
       <a
         class="text-dark d-flex align-items-center mx-2 notification-icon"
         @click="toggleNotification"

@@ -77,7 +77,9 @@ exports.create = async (req, res, next) => {
 exports.findAll = async (req, res, next) => {
   try {
     const documents = await User.findAll({
-
+      // include: [{
+      //   User_Family
+      // }]
     });
     return res.send(documents);
   } catch (error) {

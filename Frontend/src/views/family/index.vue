@@ -113,6 +113,7 @@
           (data.editValue = value), (data.activeEdit = value1)
         )
       "
+      @view="(value) => view(value)"
     />
     <!-- Pagination -->
     <Pagination
@@ -130,6 +131,7 @@
       @cancel="data.activeEdit = false"
       @edit="edit(data.editValue)"
     />
+    <View :item="data.viewValue" />
   </div>
 </template>
 
@@ -155,6 +157,7 @@ import {
 } from "../../assets/js/common.http";
 import User from "../../services/user.service";
 import User_Family from "../../services/user_family.service";
+import View from "./view.vue";
 import {
   alert_delete,
   alert_success,
@@ -168,6 +171,7 @@ export default {
     Select,
     Pagination,
     Edit,
+    View
     // AddRela
   },
   setup() {
@@ -208,7 +212,20 @@ export default {
         relationship: "",
       },
       matchingUserFamilies: [],
-      // a: [],
+      viewValue: {
+        _id: "",
+        name: "",
+        insurance: "",
+        passport: "",
+        birthday: "",
+        gender: "",
+        phone: "",
+        digital_identity: "",
+        email: "",
+        nation: "",
+        ethnic: ""
+      },
+      a: [],
     });
     // computed
     const toString = computed(() => {
@@ -397,6 +414,22 @@ export default {
       console.log("updating", item);
     };
 
+    const view = async (item) => {
+      data.viewValue = {
+        _id: item._id,
+        name: item.name,
+        insurance: item.insurance,
+        passport: item.passport,
+        birthday: item.birthday,
+        gender: item.gender,
+        phone: item.phone,
+        digital_identity: item.digital_identity,
+        email: item.email,
+        nation: item.nation,
+        ethnic: item.ethnic,
+        address: item.address
+      }
+    }
     // Hàm refresh này hiển thị thông tin người tạo gia đình
     const refresh = async () => {
       const loggedInUserId = sessionStorage.getItem("UserId");
@@ -584,6 +617,8 @@ export default {
       refresh();
       // refresh1()
       // console.log(data.items);
+      // data.a = await http_getAll(User);
+      // console.log(data.a);
     });
     const activeMenu = ref(1);
     return {
@@ -594,6 +629,7 @@ export default {
       update,
       create,
       activeMenu,
+      view
     };
   },
 };

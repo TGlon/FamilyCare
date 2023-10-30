@@ -9,13 +9,13 @@
       >
         <span class="size-17">Tiền Sử Bệnh Tật</span>
       </router-link>
-      <router-link
+      <!-- <router-link
         :to="{ name: 'MedicineType' }"
         @click="activeMenu = 2"
         :class="[activeMenu == 2 ? 'active-menu' : 'none-active-menu']"
       >
         <span class="size-17">Thuốc</span>
-      </router-link>
+      </router-link> -->
     </div>
     <!-- Filter -->
 

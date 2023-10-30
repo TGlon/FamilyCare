@@ -90,3 +90,45 @@ export const alert_noti = (title, text) => {
     });
   };
 
+  export const alert_medicine = (medicineDetails) => {
+    const tableHTML = `
+    <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Tên Thuốc</th>
+        <th>Thời Điểm</th>
+        <th>Liều Lượng</th>
+        <th>Ghi Chú</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${medicineDetails
+        .map(
+          (medicine) => `
+            <tr>
+              <td>${medicine.name}</td>
+              <td>${medicine.frequency}</td>
+              <td>${medicine.doses}</td>
+              <td>${medicine.note}</td>
+            </tr>
+          `
+        )
+        .join('')}
+    </tbody>
+  </table>
+    `;
+  
+    Swal.fire({
+      title: 'Đơn Thuốc',
+      html: tableHTML,
+      showCloseButton: true,
+      showConfirmButton: false,
+      background: '#fff',
+      width: 500,
+      didOpen: () => {
+        const popup = Swal.getPopup();
+        popup.style.border = '2px solid #fff';
+      },
+    });
+  };
+  

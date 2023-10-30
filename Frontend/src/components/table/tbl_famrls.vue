@@ -63,6 +63,7 @@ export default {
           >
             <span
               id="view"
+              @click="$emit('view', item)"
               class="material-symbols-outlined d-flex align-items-center"
             >
               visibility
