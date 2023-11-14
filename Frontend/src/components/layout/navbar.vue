@@ -343,7 +343,7 @@ export default {
   >
     <a
       class="h5 my-auto d-none d-xl-block ml-3"
-      style="color: rgb(38, 169, 224); font-weight: bold"
+      style="color: #1470D2; font-weight: bold"
       >HỆ THỐNG QUẢN LÝ SỨC KHỎE GIA ĐÌNH</a
     >
     <a class="d-xl-none d-sm-block text-dark h5 my-auto"
@@ -391,7 +391,9 @@ export default {
           <!-- Notification details -->
           <p @click="isRead(notice)" class="NoticeDetails">
             <strong>{{ notice.title }}</strong>
-            <br />{{ notice.content }}<br /><span style="font-size: 12px;">{{ formatDateTime(notice.createdAt) }}</span>
+            <br />{{ notice.content }}<br /><span style="font-size: 12px">{{
+              formatDateTime(notice.createdAt)
+            }}</span>
           </p>
 
           <!-- Notification icons -->
@@ -439,6 +441,15 @@ export default {
     </div>
   </nav>
   <div v-if="showDropdown" class="logout">
+    <router-link
+      :to="{ name: 'Settings' }"
+      class="btnlogout"
+      style="margin-right: 63.5px"
+    >
+      <i class="fas fa-cog" style="font-size: 20px"></i>
+      <span class="logout-text">Cài đặt</span>
+    </router-link>
+
     <span @click="logout" class="btnlogout">
       <i class="fas fa-sign-out-alt" style="font-size: 20px"></i>
       <span class="logout-text">Đăng Xuất</span>
@@ -452,33 +463,34 @@ export default {
   top: 68px;
   right: 0;
   width: 200px;
-  height: 40px;
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  /* padding: 15px; */
-  padding: auto;
+  display: flex;
+  flex-direction: column; /* Giữ nguyên flex-direction */
+  align-items: flex-end; /* Giữ nguyên align-items */
+  padding-right: 10px;
   margin-right: 14px;
   z-index: 9;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
+
 .btnlogout {
   color: var(--dark);
-  /* margin-left: 30px; */
-  margin: auto;
+  margin: 5px 40px; /* Thay đổi margin để tạo khoảng cách giữa các nút */
   cursor: pointer;
   font-size: 16px;
 }
+
 .btnlogout:hover {
   color: darkred;
   text-decoration: underline;
 }
+
 .logout-text {
   margin-left: 10px;
 }
+
 .material-symbols-outlined {
   font-variation-settings: "FILL" 1, "wght" 300, "GRAD" 0, "opsz" 48;
 }

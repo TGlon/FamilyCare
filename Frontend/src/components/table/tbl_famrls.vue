@@ -37,10 +37,10 @@ export default {
 
 <template>
   <table
-    class="my-table mb-2"
+    class="my-table table mb-2"
     :class="[borderTableAll ? 'border-table-all' : '']"
   >
-    <thead>
+    <thead class="thead-light">
       <tr>
         <!-- <th></th> -->
         <th>STT</th>

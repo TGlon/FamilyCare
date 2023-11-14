@@ -64,6 +64,15 @@ export default {
     const setActiveMenu = (value) => {
       sessionStorage.setItem("activeMenu", value);
     };
+    const role = sessionStorage.getItem("role");
+    if (role === "Admin") {
+      data.sidebarTasks.push({
+        id: 8,
+        icon: "folder_managed",
+        name_icon: "Vai Trò",
+        name: "Settings",
+      });
+    }
     return {
       data,
       setActiveMenu,
@@ -76,7 +85,7 @@ export default {
   <div class="border-sidebar">
     <div class="d-flex flex-column">
       <div id="img-logo" class="d-flex justify-content-center">
-        <img class="img border-img" src="../../assets/images/dlszfoqm-removebg-preview.png" alt="" />
+        <img class="img border-img" src="../../assets/images/logo-new.png" alt="" />
       </div>
       <div class="mt-3">
         <div
@@ -130,7 +139,7 @@ export default {
   overflow-y: hidden;
 }
 .img {
-  width: 195px;
+  width: 245px;
   /* 250px */
 }
 .border-img {

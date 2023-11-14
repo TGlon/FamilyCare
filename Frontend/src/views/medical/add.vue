@@ -204,8 +204,8 @@ td {
   text-align: center;
 }
 thead {
-  background-color: #9e9fa5;
-  color: white;
+  background-color: white;
+  color: black;
 }
 input {
   border: 0px;

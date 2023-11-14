@@ -332,8 +332,10 @@ export default {
     const entryValueAllergyType = ref("");
     const refresh = async () => {
       data.items = await http_getAll(Allergy);
+      const id = sessionStorage.getItem("UserId");
+      data.items = data.items.filter((user) => user.UserId === id);
       const allergyTypes = await http_getAll(Allergy);
-
+      // const filteredAllergyTypes = allergyTypes.filter((type) => type.UserId === id);
       // Create a Set to store unique allergy_type values
       const uniqueAllergyTypes = new Set();
 
@@ -363,7 +365,8 @@ export default {
         // Filter the data based on the selected allergy type.
         data.currentPage = 1;
         data.items = await http_getAll(Allergy);
-
+        const id = sessionStorage.getItem("UserId");
+        data.items = data.items.filter((user) => user.UserId === id);
         if (newAllergyType !== "Loại Dị Ứng") {
           data.items = data.items.filter((record) => {
             return record.allergy_type === newAllergyType;

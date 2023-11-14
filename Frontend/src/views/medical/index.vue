@@ -468,6 +468,22 @@ export default {
         refresh();
       }
     };
+    const deleteMany = async () => {
+      const isConfirmed = await alert_delete(
+        `Xoá Tất Cả Lịch Hẹn`,
+        `Bạn đã có chắc chắn muốn xóa tất cả tiền sử bệnh tật`
+      );
+
+      if (isConfirmed == true) {
+        const id = sessionStorage.getItem("UserId");
+        const medicalData = await http_getAllMedicalByUserId(Medical, id);
+        for (const medi of medicalData) {
+          await http_deleteOne(Medical, medi._id);
+        }
+        refresh();
+      }
+    };
+
     const view = async (id) => {
       const dataMedi = await http_getAllByMedicalHistoryId(Medicinee, id._id);
       // Khởi tạo một mảng để lưu thông tin tất cả các thuốc
@@ -521,6 +537,7 @@ export default {
       create1,
       create2,
       view,
+      deleteMany
     };
   },
 };

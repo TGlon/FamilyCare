@@ -231,6 +231,90 @@
               </div>
             </div>
           </div>
+          <div class="mb-2">
+            <button
+              data-toggle="collapse"
+              class="px-3 py-2 h6 border-none"
+              data-target="#Allergy-info"
+              style="margin-bottom: 0"
+              @click="togglePersonalInfo"
+            >
+              Thông Tin Dị Ứng 
+            </button>
+            <div
+              v-if="isActive"
+              id="Allergy-info"
+              class="collapse my-2 border-all"
+            >
+              <div class="container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Loại Dị Ứng</th>
+                      <th>Ngày Phát Hiện</th>
+                      <th>Mức Độ</th>
+                      <th>Bác Sĩ Chuẩn Đoán</th>
+                      <th>Mô Tả</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="itemAllergy in filteredAllergyItems"
+                      :key="itemAllergy._id"
+                    >
+                      <td>{{ itemAllergy.allergy_type }}</td>
+                      <td>{{ itemAllergy.detection_date}}</td>
+                      <td>{{ itemAllergy.severity }}</td>
+                      <td>{{ itemAllergy.doctor }}</td>
+                      <td>{{ itemAllergy.description }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <button
+              data-toggle="collapse"
+              class="px-3 py-2 h6 border-none"
+              data-target="#chronic-info"
+              style="margin-bottom: 0"
+              @click="togglePersonalInfo"
+            >
+              Thông Tin Bệnh Mãn Tính 
+            </button>
+            <div
+              v-if="isActive"
+              id="chronic-info"
+              class="collapse my-2 border-all"
+            >
+              <div class="container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Tên Bệnh</th>
+                      <th>Ngày Chuẩn Đoán</th>
+                      <th>Bác Sĩ Chuẩn Đoán</th>
+                      <th>Tình Trạng Hiện Tại</th>
+                      <th>Mô Tả</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="itemChronic in filteredChronicItems"
+                      :key="itemChronic._id"
+                    >
+                      <td>{{ itemChronic.name }}</td>
+                      <td>{{ itemChronic.diagnosis_date}}</td>
+                      <td>{{ itemChronic.doctor }}</td>
+                      <td>{{ itemChronic.current_status }}</td>
+                      <td>{{ itemChronic.description }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -245,6 +329,8 @@ import Health_Statistics from "../../services/health_statistics.service";
 import Medical from "../../services/medical.service";
 import Vaccination_History from "../../services/vaccination.service";
 import Medicine from "../../services/medicine.service";
+import Allergy from "../../services/allergy.services";
+import Chronic from "../../services/chronic.service";
 import { alert_medicine } from "../../assets/js/common.alert";
 export default {
   props: {
@@ -259,6 +345,8 @@ export default {
       MedicalItem: [],
       VaccinationItem: [],
       medicineItem: [],
+      allergyItem: [],
+      chronicItem: []
     });
 
     const togglePersonalInfo = () => {
@@ -270,7 +358,9 @@ export default {
       data.MedicalItem = await http_getAll(Medical);
       data.VaccinationItem = await http_getAll(Vaccination_History);
       data.medicineItem = await http_getAll(Medicine);
-      //   console.log(data.medicineItem);
+      data.allergyItem = await http_getAll(Allergy);
+      data.chronicItem = await http_getAll(Chronic);
+        // console.log(data.allergyItem);
     };
 
     onMounted(async () => {
@@ -282,6 +372,16 @@ export default {
 
     const filteredHealthItems = computed(() => {
       return data.HealthItem.filter(
+        (user) => user.UserId === latestItemId.value
+      );
+    });
+    const filteredAllergyItems = computed(() => {
+      return data.allergyItem.filter(
+        (user) => user.UserId === latestItemId.value
+      );
+    });
+    const filteredChronicItems = computed(() => {
+      return data.chronicItem.filter(
         (user) => user.UserId === latestItemId.value
       );
     });
@@ -297,6 +397,7 @@ export default {
           vacc.Appointment && vacc.Appointment.UserId === latestItemId.value
       );
     });
+    
     watch(
       () => props.item,
       (newItem) => {
@@ -323,6 +424,8 @@ export default {
       filteredHealthItems,
       filteredMediItems,
       filteredVaccinationItems,
+      filteredAllergyItems,
+      filteredChronicItems,
       showMedicine,
     };
   },

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chức năng nhập liệu bằng giọng nói</title>
+    <style>
+        /* CSS tùy chỉnh cho input */
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+        }
+
+        /* CSS tùy chỉnh cho nút Gửi */
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <form id="voice-form">
+        <input type="text" id="input-1" placeholder="Nhập liệu bằng giọng nói...">
+        <input type="text" id="input-2" placeholder="Nhập liệu bằng giọng nói...">
+        <!-- Thêm thêm các input khác nếu cần -->
+        <button type="button" id="toggle-mic">Bật Mic</button>
+    </form>
+
+    <script>
+        let isMicOn = false;
+        let activeInput = document.getElementById("input-1");
+
+        document.getElementById("voice-form").addEventListener("submit", function (e) {
+            e.preventDefault(); // Ngăn chặn gửi form bằng cách mặc định
+            if (isMicOn) {
+                startSpeechRecognition();
+            }
+        });
+
+        document.getElementById("toggle-mic").addEventListener("click", function () {
+            if (isMicOn) {
+                stopSpeechRecognition();
+            } else {
+                startSpeechRecognition();
+            }
+        });
+
+        function startSpeechRecognition() {
+            const recognition = new webkitSpeechRecognition(); // Tạo một đối tượng nhận dạng giọng nói
+
+            recognition.lang = "vi-VN"; // Đặt ngôn ngữ cho nhận dạng (tiếng Việt)
+
+            recognition.onresult = function (event) {
+                const speechResult = event.results[0][0].transcript; // Lấy kết quả nhận dạng
+
+                // Kiểm tra keyword "Chuyển" và chuyển sang ô dưới
+                if (speechResult.includes("Chuyển")) {
+                    activeInput = document.getElementById("input-2");
+                }
+
+                activeInput.value = speechResult; // Điền kết quả nhận dạng vào input
+            };
+
+            recognition.start(); // Bắt đầu nhận dạng giọng nói
+            isMicOn = true;
+            document.getElementById("toggle-mic").textContent = "Tắt Mic";
+        }
+
+        function stopSpeechRecognition() {
+            recognition.stop();
+            isMicOn = false;
+            document.getElementById("toggle-mic").textContent = "Bật Mic";
+        }
+
+        // Cấp quyền truy cập microphone
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function () {
+                console.log("Đã cấp quyền truy cập microphone");
+            })
+            .catch(function (error) {
+                console.error("Lỗi khi cấp quyền truy cập microphone: " + error);
+            });
+    </script>
+</body>
+</html>

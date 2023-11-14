@@ -276,7 +276,7 @@ export default {
         diagnosis_date: data.itemAdd.diagnosis_date,
         doctor: data.itemAdd.doctor,
         current_status: data.itemAdd.current_status,
-        description: data.itemAdd.description
+        description: data.itemAdd.description,
       };
       const result = await http_create(Chronic, ChronicData);
       if (!result.error) {
@@ -299,10 +299,7 @@ export default {
       if (isConfirmed == true) {
         const result = await http_deleteOne(Chronic, _id);
         // console.log("Name:", result);
-        alert_success(
-          `Xoá Hồ Sơ`,
-          `Bạn đã xoá thành công hồ sơ.`
-        );
+        alert_success(`Xoá Hồ Sơ`, `Bạn đã xoá thành công hồ sơ.`);
         refresh();
       }
     };
@@ -326,15 +323,15 @@ export default {
       );
       if (isConfirmed) {
         // Lặp qua data.items và xóa tất cả
-        if(data.items.length == 0){
-          alert_error("Xoá Tất Cả Hồ Sơ", "Không có hồ sơ nào để xóa!")
+        if (data.items.length == 0) {
+          alert_error("Xoá Tất Cả Hồ Sơ", "Không có hồ sơ nào để xóa!");
         }
         for (const item of data.items) {
           const result = await http_deleteOne(Chronic, item._id);
           if (!result.error) {
             alert_delete(`Đã xoá hồ sơ`, result.msg);
           } else {
-            alert_error(`Lỗi`, result.msg)
+            alert_error(`Lỗi`, result.msg);
           }
         }
         await refresh();
@@ -345,13 +342,18 @@ export default {
     const entryValueAllergyType = ref("");
     const refresh = async () => {
       data.items = await http_getAll(Chronic);
+      const id = sessionStorage.getItem("UserId");
+      data.items = data.items.filter((user) => user.UserId === id);
       const allergyTypes = await http_getAll(Chronic);
-
+      // Filter the allergyTypes based on UserId
+      const filteredAllergyTypes = allergyTypes.filter(
+        (type) => type.UserId === id
+      );
       // Create a Set to store unique name values
       const uniqueAllergyTypes = new Set();
 
       // Iterate through the allergyTypes and add unique values to the Set
-      allergyTypes.forEach((value) => {
+      filteredAllergyTypes.forEach((value) => {
         uniqueAllergyTypes.add(value.name);
       });
 
@@ -375,7 +377,8 @@ export default {
         // Filter the data based on the selected allergy type.
         data.currentPage = 1;
         data.items = await http_getAll(Chronic);
-
+        const id = sessionStorage.getItem("UserId");
+        data.items = data.items.filter((user) => user.UserId === id);
         if (newAllergyType !== "Bệnh Mãn Tính") {
           data.items = data.items.filter((record) => {
             return record.name === newAllergyType;
@@ -395,7 +398,8 @@ export default {
       deleteOne,
       edit,
       deleteAll,
-      activeMenu,selectedAllergyType
+      activeMenu,
+      selectedAllergyType,
     };
   },
 };

@@ -13,9 +13,9 @@
           <div class="card-body p-5">
             <h5 class="card-title text-center mb-4">
               <img
-                src="./assets/images/logo-login1.png"
+                src="./assets/images/logo-new-white.png"
                 alt=""
-                style="width: 230px; height: 200px; margin-bottom: 30px"
+                style="width: 338px; height: 240px; margin-bottom: 5px"
               />
             </h5>
             <!-- <h3

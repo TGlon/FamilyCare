@@ -45,10 +45,10 @@ export default {
 
 <template>
   <table
-    class="my-table mb-2"
+    class="my-table table mb-2"
     :class="[borderTableAll ? 'border-table-all' : '']"
   >
-    <thead>
+    <thead class="thead-light">
       <tr>
         <th><span class="size-16">STT</span></th>
         <th v-for="(value, index) in fields" :key="index">

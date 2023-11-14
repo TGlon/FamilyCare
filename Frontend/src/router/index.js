@@ -76,7 +76,12 @@ const routes = [
         path: "/medicinetype",
         name: "MedicineType",
         component: () => import('../views/medical/medicine.vue'),
-      }
+      },
+      {
+        path: "/notice",
+        name: "Notices",
+        component: () => import('../views/setting/notification.vue'),
+      },
     ],
   },
 ];

@@ -10,17 +10,21 @@
   },
   "dependencies": {
     "annyang": "^2.6.1",
+    "apexcharts": "^3.44.0",
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.5",
+    "chart.js": "^4.4.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^2.30.0",
     "moment": "^2.29.4",
     "socket.io-client": "^4.7.0",
     "sweetalert2": "^11.7.12",
     "vue": "^3.2.47",
+    "vue-chartjs": "^5.2.0",
     "vue-click-outside": "^1.1.0",
     "vue-router": "^4.2.0",
-    "vue3-apexcharts": "^1.4.1"
+    "vue3-apexcharts": "^1.4.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",

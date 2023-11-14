@@ -332,45 +332,44 @@ export default {
     };
 
     const register = async () => {
-  const userData = {
-    name: name.value,
-    gender: gender.value,
-    birthday: birthday.value,
-    address: address.value,
-    passport: passport.value,
-    digital_identity: digital_identity.value,
-    insurance: insurance.value,
-    phone: phone.value,
-    email: email.value,
-    nation: nation.value,
-    ethnic: ethnic.value,
-  };
+      const userData = {
+        name: name.value,
+        gender: gender.value,
+        birthday: birthday.value,
+        address: address.value,
+        passport: passport.value,
+        digital_identity: digital_identity.value,
+        insurance: insurance.value,
+        phone: phone.value,
+        email: email.value,
+        nation: nation.value,
+        ethnic: ethnic.value,
+      };
 
-  try {
-    const CreateUser = await http_create(User, userData);
+      try {
+        const CreateUser = await http_create(User, userData);
 
-    const accountData = {
-      username: username.value,
-      password: password.value,
-      roleId: "c97ca6dd-cc7d-4466-8380-d45ab7f3693a",
-      UserId: CreateUser.document._id,
+        const accountData = {
+          username: username.value,
+          password: password.value,
+          roleId: "968daed5-1be8-43c1-9b39-1ebddc184488",
+          UserId: CreateUser.document._id,
+        };
+
+        const CreateAccount = await http_create(Account, accountData);
+
+        // Nếu tạo tài khoản thành công, hiển thị thông báo thành công
+        if (CreateAccount) {
+          alert_success("Tạo tài khoản thành công", CreateAccount.msg);
+          router.push({ name: "Login" });
+        }
+      } catch (error) {
+        // Xử lý lỗi nếu có
+        console.error("Lỗi khi tạo tài khoản:", error);
+        // Hiển thị thông báo lỗi nếu bạn muốn
+        alert_error("Đã xảy ra lỗi khi tạo tài khoản", CreateAccount.msg);
+      }
     };
-
-    const CreateAccount = await http_create(Account, accountData);
-
-    // Nếu tạo tài khoản thành công, hiển thị thông báo thành công
-    if (CreateAccount) {
-      alert_success("Tạo tài khoản thành công", CreateAccount.msg);
-      router.push({ name: "Login" });
-    }
-  } catch (error) {
-    // Xử lý lỗi nếu có
-    console.error("Lỗi khi tạo tài khoản:", error);
-    // Hiển thị thông báo lỗi nếu bạn muốn
-    alert_error("Đã xảy ra lỗi khi tạo tài khoản", CreateAccount.msg);
-  }
-};
-
 
     return {
       name,
@@ -389,7 +388,7 @@ export default {
       showPassword,
       register,
       selectedGenders,
-      address
+      address,
     };
   },
 };

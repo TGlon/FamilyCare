@@ -17,7 +17,7 @@
         <span class="size-17">Bảo Mật</span>
       </router-link>
       <router-link
-        :to="{ name: '' }"
+        :to="{ name: 'Notices' }"
         @click="activeMenu = 3"
         :class="[activeMenu == 3 ? 'active-menu' : 'none-active-menu']"
       >

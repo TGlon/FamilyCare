@@ -65,7 +65,7 @@
           class="btn btn-outline-danger mr-3"
           data-toggle="modal"
           data-target="#model-delete-all"
-          @click="deleteMany()"
+          @click="deleteAll()"
         >
           <span id="delete-all" class="mx-2">Xoá</span>
         </button>
@@ -342,6 +342,31 @@ export default {
         refresh();
       }
     };
+    const deleteAll = async () => {
+  const isConfirmed = await alert_delete(
+    `Xoá Tất Cả Lịch Hẹn`,
+    `Bạn đã có chắc chắn muốn xóa tất cả lịch hẹn`
+  );
+
+  if (isConfirmed == true) {
+    const id = sessionStorage.getItem("UserId");
+      data.items = await http_getAll(Appointment);
+      
+      // Lọc ra các mục có UserId giống với id đã đăng nhập
+      data.items = data.items.filter(
+        (appointment) => appointment.UserId === id
+      );
+
+    // Tiến hành xóa tất cả các Vaccination thuộc về người dùng
+    for (const app of data.items) {
+      await http_deleteOne(Appointment, app._id);
+    }
+
+    // Sau khi xóa xong tất cả các lịch hẹn, bạn có thể thực hiện một số thứ khác, ví dụ: làm mới danh sách
+    refresh();
+  }
+};
+
     const refresh = async () => {
       const id = sessionStorage.getItem("UserId");
       data.items = await http_getAll(Appointment);
@@ -361,7 +386,7 @@ export default {
       edit,
       update,
       create,
-      deleteOne,
+      deleteOne,deleteAll
     };
   },
 };
