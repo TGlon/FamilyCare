@@ -1,6 +1,6 @@
 const { Account, Role, User } = require("../models/index.model.js");
 const createError = require("http-errors");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 exports.create = async (req, res, next) => {
   if (Object.keys(req.body).length === 4) {
@@ -24,7 +24,7 @@ exports.create = async (req, res, next) => {
         username: req.body.username,
         password: req.body.password,
         UserId: req.body.UserId,
-        roleId: req.body.roleId
+        roleId: req.body.roleId,
       });
       return res.send({
         error: false,
@@ -48,7 +48,9 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Account.findAll({});
+    const documents = await Account.findAll({
+      include: [{ model: User }, { model: Role }],
+    });
     return res.send(documents);
   } catch (error) {
     console.log(error);
@@ -147,7 +149,7 @@ exports.deleteOne = async (req, res, next) => {
 // // };
 exports.update = async (req, res, next) => {
   console.log("Update", req.body);
-  const { UserId, password, username , roleId} = req.body;
+  const { UserId, password, username, roleId } = req.body;
   // Kiểm tra xem dữ liệu cần thiết có bị thiếu không
   // if (!user_name || !password || !roleId || !EmployeeId) {
   //   return res.send({
@@ -179,7 +181,7 @@ exports.update = async (req, res, next) => {
           UserId: req.body.UserId,
           password: req.body.password,
           username: req.body.username,
-          roleId:req.body.roleId
+          roleId: req.body.roleId,
         },
         { where: { _id: req.params.id }, returning: true }
       );
@@ -200,38 +202,33 @@ exports.update = async (req, res, next) => {
 };
 exports.login = async (req, res, next) => {
   try {
-      const secretKey = 'mysecretkey';
-      const { username, password } = req.body;
-      // Tìm người dùng trong danh sách người dùng
-      let users = await Account.findAll({
-          include: [
-              Role,
-              User
-          ]
-      })
-      users = users.filter(
-          (value, index) => {
-              return value.username == username && value.password == password
-          }
-      )
+    const secretKey = "mysecretkey";
+    const { username, password } = req.body;
+    // Tìm người dùng trong danh sách người dùng
+    let users = await Account.findAll({
+      include: [Role, User],
+    });
+    users = users.filter((value, index) => {
+      return value.username == username && value.password == password;
+    });
 
-      if (users.length == 0) {
-          return res.send({
-              msg: 'Tên tài khoản hoặc mật khẩu không hợp lệ!',
-              error: true,
-          })
-      } else if (users.length > 0) {
-          const token = jwt.sign({ userId: users[0].id }, secretKey);
-          return res.send({
-              error: false,
-              token: token,
-              document: users[0],
-          })
-      }
+    if (users.length == 0) {
+      return res.send({
+        msg: "Tên tài khoản hoặc mật khẩu không hợp lệ!",
+        error: true,
+      });
+    } else if (users.length > 0) {
+      const token = jwt.sign({ userId: users[0].id }, secretKey);
+      return res.send({
+        error: false,
+        token: token,
+        document: users[0],
+      });
+    }
   } catch (error) {
-      console.log(error);
+    console.log(error);
   }
-}
+};
 
 exports.findAccountByUserId = async (req, res, next) => {
   try {
@@ -245,7 +242,7 @@ exports.findAccountByUserId = async (req, res, next) => {
     if (accounts.length === 0) {
       return res.send({
         error: true,
-        msg: 'Không tìm thấy tài khoản nào cho UserId này.',
+        msg: "Không tìm thấy tài khoản nào cho UserId này.",
       });
     }
 
@@ -255,6 +252,6 @@ exports.findAccountByUserId = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    return next(createError(400, 'Lỗi khi tìm kiếm tài khoản theo UserId.'));
+    return next(createError(400, "Lỗi khi tìm kiếm tài khoản theo UserId."));
   }
 };

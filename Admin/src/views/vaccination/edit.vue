@@ -9,12 +9,18 @@ export default {
   },
   setup(props, ctx) {
     const data = reactive({});
-    const create = () => {
-      ctx.emit("create");
-      console.log("Thêm Thành Công");
+    const update = () => {
+      if (
+        props.item.vaccine.length > 0 &&
+        props.item.doses.length > 0 &&
+        props.item.doctor.length > 0 &&
+        props.item.note.length > 0 
+      ) {
+        ctx.emit("update");
+      }
     };
     return {
-      create,
+      update,
     };
   },
 };
@@ -22,15 +28,20 @@ export default {
 
 <template>
   <!-- The Modal -->
-  <div class="modal" id="modal-addhealth">
+  <div class="modal" id="model-edit">
     <div class="modal-dialog">
       <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title" style="font-size: 15px">
-            Tạo Hồ Sơ Sức Khỏe
+            Sửa Thông Tin Tiêm Ngừa
           </h4>
-          <button type="button" class="close" data-dismiss="modal">
+          <button
+            @click="$emit('cancel')"
+            type="button"
+            class="close"
+            data-dismiss="modal"
+          >
             &times;
           </button>
         </div>
@@ -39,91 +50,79 @@ export default {
         <div class="modal-body">
           <form action="" class="was-validated">
             <div class="form-group">
-              <label for="recording_date"
-                >Ngày Ghi Nhận<span style="color: red">*</span>:</label
-              >
-              <input
-                type="date"
-                class="form-control"
-                id="recording_date"
-                name="recording_date"
-                v-model="item.recording_date"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="weight"
-                >Cân Nặng(Kg)<span style="color: red">*</span>:</label
+              <label for="vaccination"
+                >Tiêm Ngừa(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
                 class="form-control"
-                id="weight"
-                name="weight"
-                v-model="item.weight"
+                id="vaccination"
+                name="vaccination"
+                v-model="item.vaccination"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="height"
-                >Chiều Cao(Cm)<span style="color: red">*</span>:</label
+              <label for="vaccine"
+                >Tên Vaccine(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
                 class="form-control"
-                id="height"
-                name="height"
-                v-model="item.height"
+                id="vaccine"
+                name="vaccine"
+                v-model="item.vaccine"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="blood_type"
-                >Nhóm Máu<span style="color: red">*</span>:</label
+              <label for="doses"
+                >Liều Lượng(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
                 class="form-control"
-                id="blood_type"
-                name="blood_type"
-                v-model="item.blood_type"
+                id="doses"
+                name="doses"
+                v-model="item.doses"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="heart_rate"
-                >Nhịp Tim(Lần/phút)<span style="color: red">*</span>:</label
+              <label for="doctor"
+                >Bác Sĩ(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
                 class="form-control"
-                id="heart_rate"
-                name="heart_rate"
-                v-model="item.heart_rate"
+                id="doctor"
+                name="doctor"
+                v-model="item.doctor"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="blood_pressure"
-                >Huyết Áp(mmHg)<span style="color: red">*</span>:</label
+              <label for="note"
+                >Ghi Chú:</label
               >
               <input
                 type="text"
                 class="form-control"
-                id="blood_pressure"
-                name="blood_pressure"
-                v-model="item.blood_pressure"
-                required
+                id="note"
+                name="note"
+                v-model="item.note"
+                
               />
             </div>
+            
             <button
               type="button"
-              class="btn btn-primary px-3 py-2"
-              style="font-size: 14px"
-              @click="create"
-              id="add"
+              class="btn btn-warning px-3 py-2"
+              style="font-size: 14px; float: right"
+              @click="$emit('edit')"
+              id="edit"
             >
-              <span>Thêm</span>
+              <span>Cập Nhật</span>
             </button>
           </form>
         </div>
@@ -133,9 +132,6 @@ export default {
 </template>
 
 <style scoped>
-#add {
-    float: right;
-}
 /* CSS để bố trí radio button và label ngang hàng */
 .gender-options {
   display: flex;
@@ -152,5 +148,10 @@ export default {
   margin-right: 50px; /* Khoảng cách giữa các label */
   display: flex;
   align-items: center;
+}
+.show-modal {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>

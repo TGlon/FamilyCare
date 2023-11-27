@@ -1,4 +1,4 @@
-const { Appointment } = require("../models/index.model.js");
+const { Appointment, User } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
@@ -66,7 +66,11 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Appointment.findAll({});
+    const documents = await Appointment.findAll({
+      include: [{
+        model: User
+      }]
+    });
     return res.send(documents.sort((a, b) => new Date(b.start_date) - new Date(a.start_date)));
   } catch (error) {
     console.log(error);

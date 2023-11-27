@@ -1,4 +1,4 @@
-const { Vaccination_History, Appointment, Vaccine_Types } = require("../models/index.model.js");
+const { Vaccination_History, Appointment, Vaccine_Types, User } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
@@ -59,6 +59,11 @@ exports.findAll = async (req, res, next) => {
         {
           model: Appointment, // Bảng bạn muốn join
           attributes: ['start_date', 'UserId'], // Chọn thuộc tính bạn muốn hiển thị
+          include: [
+            {
+              model: User, // Bảng User
+            },
+          ],
         },
         {
           model: Vaccine_Types,

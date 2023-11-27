@@ -1,4 +1,4 @@
-const { Allergy } = require("../models/index.model.js");
+const { Allergy, User } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
@@ -61,7 +61,11 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Allergy.findAll({});
+    const documents = await Allergy.findAll({
+      include: [{
+        model: User,
+      }]
+    });
     return res.send(documents);
   } catch (error) {
     console.log(error);

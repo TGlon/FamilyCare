@@ -9,12 +9,20 @@ export default {
   },
   setup(props, ctx) {
     const data = reactive({});
-    const create = () => {
-      ctx.emit("create");
-      console.log("Thêm Thành Công");
+    const update = () => {
+      if (
+        props.item.recording_date.length > 0 &&
+        props.item.weight.length > 0 &&
+        props.item.height.length > 0 &&
+        props.item.heart_rate.length > 0 &&
+        props.item.blood_pressure.length > 0 &&
+        props.item.blood_type.length > 0 
+      ) {
+        ctx.emit("update");
+      }
     };
     return {
-      create,
+      update,
     };
   },
 };
@@ -22,15 +30,20 @@ export default {
 
 <template>
   <!-- The Modal -->
-  <div class="modal" id="modal-addhealth">
+  <div class="modal" id="model-edithealth">
     <div class="modal-dialog">
       <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title" style="font-size: 15px">
-            Tạo Hồ Sơ Sức Khỏe
+            Sửa Thông Tin Sức Khỏe
           </h4>
-          <button type="button" class="close" data-dismiss="modal">
+          <button
+            @click="$emit('cancel')"
+            type="button"
+            class="close"
+            data-dismiss="modal"
+          >
             &times;
           </button>
         </div>
@@ -40,7 +53,7 @@ export default {
           <form action="" class="was-validated">
             <div class="form-group">
               <label for="recording_date"
-                >Ngày Ghi Nhận<span style="color: red">*</span>:</label
+                >Ngày Ghi Nhận(<span style="color: red">*</span>):</label
               >
               <input
                 type="date"
@@ -53,7 +66,7 @@ export default {
             </div>
             <div class="form-group">
               <label for="weight"
-                >Cân Nặng(Kg)<span style="color: red">*</span>:</label
+                >Cân Nặng(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -66,7 +79,7 @@ export default {
             </div>
             <div class="form-group">
               <label for="height"
-                >Chiều Cao(Cm)<span style="color: red">*</span>:</label
+                >Chiều Cao(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -79,7 +92,7 @@ export default {
             </div>
             <div class="form-group">
               <label for="blood_type"
-                >Nhóm Máu<span style="color: red">*</span>:</label
+                >Nhóm Máu(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -92,7 +105,7 @@ export default {
             </div>
             <div class="form-group">
               <label for="heart_rate"
-                >Nhịp Tim(Lần/phút)<span style="color: red">*</span>:</label
+                >Nhịp Tim(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -105,7 +118,7 @@ export default {
             </div>
             <div class="form-group">
               <label for="blood_pressure"
-                >Huyết Áp(mmHg)<span style="color: red">*</span>:</label
+                >Huyết Áp(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -116,14 +129,15 @@ export default {
                 required
               />
             </div>
+
             <button
               type="button"
-              class="btn btn-primary px-3 py-2"
-              style="font-size: 14px"
-              @click="create"
-              id="add"
+              class="btn btn-warning px-3 py-2"
+              style="font-size: 14px; float: right"
+              @click="$emit('edit')"
+              id="edit"
             >
-              <span>Thêm</span>
+              <span>Cập Nhật</span>
             </button>
           </form>
         </div>
@@ -133,9 +147,6 @@ export default {
 </template>
 
 <style scoped>
-#add {
-    float: right;
-}
 /* CSS để bố trí radio button và label ngang hàng */
 .gender-options {
   display: flex;
@@ -152,5 +163,10 @@ export default {
   margin-right: 50px; /* Khoảng cách giữa các label */
   display: flex;
   align-items: center;
+}
+.show-modal {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>

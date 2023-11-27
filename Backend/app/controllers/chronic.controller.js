@@ -1,4 +1,4 @@
-const { Chronic_Disease } = require("../models/index.model.js");
+const { Chronic_Disease, User } = require("../models/index.model.js");
 const createError = require("http-errors");
 
 exports.create = async (req, res, next) => {
@@ -58,7 +58,11 @@ exports.create = async (req, res, next) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const documents = await Chronic_Disease.findAll({});
+    const documents = await Chronic_Disease.findAll({
+      include: [{
+        model: User,
+      }]
+    });
     return res.send(documents);
   } catch (error) {
     console.log(error);

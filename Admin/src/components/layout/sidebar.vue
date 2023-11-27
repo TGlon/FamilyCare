@@ -54,25 +54,23 @@ export default {
         },
         {
           id: 7,
-          icon: "settings",
-          name_icon: "Cài Đặt",
-          name: "Settings",
+          icon: "folder_managed",
+          name_icon: "Tài Khoản",
+          name: "Accounts",
         },
+        // {
+        //   id: 8,
+        //   icon: "settings",
+        //   name_icon: "Cài Đặt",
+        //   name: "Settings",
+        // },
       ],
     });
 
     const setActiveMenu = (value) => {
       sessionStorage.setItem("activeMenu", value);
     };
-    // const role = sessionStorage.getItem("role");
-    // if (role === "Admin") {
-    //   data.sidebarTasks.push({
-    //     id: 8,
-    //     icon: "folder_managed",
-    //     name_icon: "Vai Trò",
-    //     name: "Settings",
-    //   });
-    // }
+
     return {
       data,
       setActiveMenu,
@@ -85,7 +83,11 @@ export default {
   <div class="border-sidebar">
     <div class="d-flex flex-column">
       <div id="img-logo" class="d-flex justify-content-center">
-        <img class="img border-img" src="../../assets/images/logo-new.png" alt="" />
+        <img
+          class="img border-img"
+          src="../../assets/images/logo-new.png"
+          alt=""
+        />
       </div>
       <div class="mt-3">
         <div
