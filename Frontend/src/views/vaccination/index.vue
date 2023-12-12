@@ -264,13 +264,13 @@ export default {
         );
         if (result.document.appointment_type === "Tiêm Ngừa Covid 19") {
           const VaccData = {
-            vaccination: "Tiêm Ngừa Covid",
+            vaccination: "Covid 19",
             vaccine: "N/A",
             doses: "N/A",
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0",
+            VaccineTypeId: "4f663f89-50e2-46c1-8560-4f177f59f519",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -282,7 +282,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517",
+            VaccineTypeId: "f9704062-0364-4555-bd67-3ee563aa231b",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -294,7 +294,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853",
+            VaccineTypeId: "5f38067e-9cd0-4a2d-93e9-8fadcc0dc702",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -308,7 +308,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9",
+            VaccineTypeId: "6d5b4721-0d7d-481a-968b-2a74e7269ab0",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -322,7 +322,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e",
+            VaccineTypeId: "db1a3d90-d1b0-4deb-9b2b-40a0d1b3b7ae",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -356,13 +356,13 @@ export default {
       const createAppId = createApp.document._id;
       const created = createApp.document.createdAt;
       const formattedCreatedAt = formatCreatedAt(created);
-      if (data.itemAdd.name === "Covid 19") {
+      if (data.itemAdd.name === "Tiêm Ngừa Covid 19") {
         const putAppData = {
           appointment_type: "Tiêm Ngừa Covid 19",
           start_date: formattedCreatedAt,
           place: "N/A",
           status: "Đã Hoàn Thành",
-          note: "",
+          note: " ",
           UserId: id,
         };
         const updateApp = await http_update(
@@ -377,7 +377,7 @@ export default {
           doctor: data.itemAdd.doctor,
           note: data.itemAdd.note,
           AppointmentId: createAppId,
-          VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0",
+          VaccineTypeId: "4f663f89-50e2-46c1-8560-4f177f59f519",
         };
         const createVacc = await http_create(Vaccination, vaccData);
         if (!createVacc.error) {
@@ -386,13 +386,13 @@ export default {
         } else {
           alert_error(`Lỗi`, createVacc.msg);
         }
-      } else if (data.itemAdd.name === "Viêm Gan") {
+      } else if (data.itemAdd.name === "Tiêm Ngừa Viêm Gan") {
         const putAppData = {
           appointment_type: "Tiêm Ngừa Viêm Gan",
           start_date: formattedCreatedAt,
           place: "N/A",
           status: "Đã Hoàn Thành",
-          note: "",
+          note: " ",
           UserId: id,
         };
         const updateApp = await http_update(
@@ -407,7 +407,7 @@ export default {
           doctor: data.itemAdd.doctor,
           note: data.itemAdd.note,
           AppointmentId: createAppId,
-          VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853",
+          VaccineTypeId: "5f38067e-9cd0-4a2d-93e9-8fadcc0dc702",
         };
         const createVacc = await http_create(Vaccination, vaccData);
         if (!createVacc.error) {
@@ -416,13 +416,13 @@ export default {
         } else {
           alert_error(`Lỗi`, createVacc.msg);
         }
-      } else if (data.itemAdd.name === "Nhiễm Khuẩn") {
+      } else if (data.itemAdd.name === "Tiêm Ngừa Nhiễm Khuẩn") {
         const putAppData = {
           appointment_type: "Tiêm Ngừa Nhiễm Khuẩn",
           start_date: formattedCreatedAt,
           place: "N/A",
           status: "Đã Hoàn Thành",
-          note: "",
+          note: " ",
           UserId: id,
         };
         const updateApp = await http_update(
@@ -437,7 +437,7 @@ export default {
           doctor: data.itemAdd.doctor,
           note: data.itemAdd.note,
           AppointmentId: createAppId,
-          VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9",
+          VaccineTypeId: "6d5b4721-0d7d-481a-968b-2a74e7269ab0",
         };
         const createVacc = await http_create(Vaccination, vaccData);
         if (!createVacc.error) {
@@ -446,13 +446,13 @@ export default {
         } else {
           alert_error(`Lỗi`, createVacc.msg);
         }
-      } else if (data.itemAdd.name === "Truyền Nhiễm") {
+      } else if (data.itemAdd.name === "Tiêm Ngừa Bệnh Truyền Nhiễm") {
         const putAppData = {
           appointment_type: "Tiêm Ngừa Truyền Nhiễm",
           start_date: formattedCreatedAt,
           place: "N/A",
           status: "Đã Hoàn Thành",
-          note: "",
+          note: " ",
           UserId: id,
         };
         const updateApp = await http_update(
@@ -467,7 +467,7 @@ export default {
           doctor: data.itemAdd.doctor,
           note: data.itemAdd.note,
           AppointmentId: createAppId,
-          VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e",
+          VaccineTypeId: "db1a3d90-d1b0-4deb-9b2b-40a0d1b3b7ae",
         };
         const createVacc = await http_create(Vaccination, vaccData);
         if (!createVacc.error) {
@@ -476,13 +476,13 @@ export default {
         } else {
           alert_error(`Lỗi`, createVacc.msg);
         }
-      } else if (data.itemAdd.name === "Uốn Ván") {
+      } else if (data.itemAdd.name === "Tiêm Ngừa Uốn Ván") {
         const putAppData = {
           appointment_type: "Tiêm Ngừa Uốn Ván",
           start_date: formattedCreatedAt,
           place: "N/A",
           status: "Đã Hoàn Thành",
-          note: "",
+          note: " ",
           UserId: id,
         };
         const updateApp = await http_update(
@@ -497,7 +497,7 @@ export default {
           doctor: data.itemAdd.doctor,
           note: data.itemAdd.note,
           AppointmentId: createAppId,
-          VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517",
+          VaccineTypeId: "f9704062-0364-4555-bd67-3ee563aa231b",
         };
         const createVacc = await http_create(Vaccination, vaccData);
         if (!createVacc.error) {

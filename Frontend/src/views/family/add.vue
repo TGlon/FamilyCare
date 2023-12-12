@@ -132,7 +132,7 @@ export default {
                 <option value="Khác">Khác</option>
               </select>
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="insurance"
                 >Mã Y Tế(<span style="color: red">*</span>):</label
               >
@@ -144,7 +144,7 @@ export default {
                 v-model="item.insurance"
                 required
               />
-            </div>
+            </div> -->
             <div class="form-group">
               <label for="birthday"
                 >Ngày Sinh(<span style="color: red">*</span>):</label
@@ -158,7 +158,7 @@ export default {
                 required
               />
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="address"
                 >Địa Chỉ(<span style="color: red">*</span>):</label
               >
@@ -170,7 +170,7 @@ export default {
                 v-model="item.address"
                 required
               />
-            </div>
+            </div> -->
             <div class="form-group">
               <label for="passport"
                 >CCCD/CMND(<span style="color: red">*</span>):</label
@@ -184,7 +184,7 @@ export default {
                 required
               />
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="gender"
                 >Giới Tính(<span style="color: red">*</span>):</label
               >
@@ -222,7 +222,7 @@ export default {
                 />
                 <label for="gender-khac">Khác</label>
               </div>
-            </div>
+            </div> -->
             <div class="form-group">
               <label for="phone"
                 >Số Điện Thoại(<span style="color: red">*</span>):</label
@@ -237,9 +237,9 @@ export default {
               />
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="digital_identity"
-                >Mã Định Danh(<span style="color: red">*</span>):</label
+                >Nghề Nghiệp(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -249,8 +249,8 @@ export default {
                 v-model="item.digital_identity"
                 required
               />
-            </div>
-            <div class="form-group">
+            </div> -->
+            <!-- <div class="form-group">
               <label for="email"
                 >Email(<span style="color: red">*</span>):</label
               >
@@ -262,8 +262,8 @@ export default {
                 v-model="item.email"
                 required
               />
-            </div>
-            <div class="form-group">
+            </div> -->
+            <!-- <div class="form-group">
               <label for="nation"
                 >Quốc Tịch(<span style="color: red">*</span>):</label
               >
@@ -288,7 +288,7 @@ export default {
                 v-model="item.ethnic"
                 required
               />
-            </div>
+            </div> -->
             <button
               type="button"
               class="btn btn-primary px-3 py-2"

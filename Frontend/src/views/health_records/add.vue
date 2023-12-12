@@ -1,5 +1,5 @@
 <script>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 export default {
   props: {
     item: {
@@ -13,8 +13,98 @@ export default {
       ctx.emit("create");
       console.log("Thêm Thành Công");
     };
+    const item = ref(props.item);
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "vi";
+    let isListening = ref(false);
+    let shouldRestartRecognition = true;
+
+    recognition.onstart = () => {
+      isListening.value = true;
+    };
+
+    recognition.onend = () => {
+      isListening.value = false;
+      if (shouldRestartRecognition) {
+        recognition.start();
+      }
+    };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      handleVoiceCommand(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Lỗi nhận dạng giọng nói:", event.error);
+    };
+    const toggleVoiceRecognition = () => {
+      if (isListening.value) {
+        stopRecognition();
+      } else {
+        recognition.start();
+        isListening.value = true;
+        shouldRestartRecognition = true;
+      }
+    };
+
+    const stopRecognition = () => {
+      recognition.stop();
+      shouldRestartRecognition = false;
+    };
+    const handleVoiceCommand = (command) => {
+      const keywords = [
+        "ngày ghi nhận",
+        "cân nặng",
+        "chiều cao",
+        "nhóm máu",
+        "nhịp tim",
+        "huyết áp"
+      ];
+
+      for (const keyword of keywords) {
+        if (command.includes(keyword)) {
+          const value = command.replace(keyword, "").trim();
+          console.log("Keyword:", keyword, "Value:", value);
+          switch (keyword) {
+            case "ngày ghi nhận":
+              // Extract day, month, and year using regex
+              const match = value.match(
+                /ngày (\d{1,2}) tháng (\d{1,2}) năm (\d{4})/
+              );
+              if (match) {
+                const day = match[1].padStart(2, "0");
+                const month = match[2].padStart(2, "0");
+                const year = match[3];
+                const formattedDate = `${year}-${month}-${day}`;
+                item.value.recording_date = formattedDate;
+              } else {
+                console.error("Invalid date format:", value);
+              }
+              break;
+            case "cân nặng":
+              item.value.weight = value;
+              break;
+            case "chiều cao":
+              item.value.height = value;
+              break;
+            case "nhóm máu":
+              item.value.blood_type = value;
+              break;
+            case "nhịp tim":
+              item.value.heart_rate = value;
+              break;
+            case "huyết áp":
+              item.value.blood_pressure = value;
+              break;
+          }
+        }
+      }
+    };
     return {
       create,
+      isListening,
+      toggleVoiceRecognition,
+      handleVoiceCommand,
     };
   },
 };
@@ -116,6 +206,19 @@ export default {
                 required
               />
             </div>
+            <button
+              type="button"
+              class="btn btn-outline-dark rounded-circle"
+              style="font-size: 14px; width: 50px; height: 40px"
+              @click="toggleVoiceRecognition"
+              id="toggleVoiceButton"
+            >
+              <span v-if="isListening" class="material-symbols-outlined"
+                >mic_off</span
+              >
+              <span v-else class="material-symbols-outlined">mic</span>
+            </button>
+
             <button
               type="button"
               class="btn btn-primary px-3 py-2"

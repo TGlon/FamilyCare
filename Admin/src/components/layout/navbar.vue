@@ -8,7 +8,7 @@ import {
   onMounted,
 } from "vue";
 import { useRouter } from "vue-router";
-import { alert_delete, alert_noti } from "../../assets/js/common.alert";
+import { alert_delete, alert_noti, alert_success } from "../../assets/js/common.alert";
 import socket from "../../socket";
 import Appointment from "../../services/appointment.service";
 import {
@@ -19,6 +19,7 @@ import {
   http_update,
 } from "../../assets/js/common.http";
 import { onBeforeMount } from "vue";
+import SetTime from "../../services/settime.service";
 import { formatDateTime, formatDate } from "../../assets/js/common.format";
 import moment from "moment";
 import Notification from "../../services/notification.service";
@@ -83,89 +84,88 @@ export default {
         }
       }
       if (
-        socket.on("appointmentNoti", async () => {
+        socket.on("a", async () => {
           count.value++;
-          location.reload();
+          await refresh()
+          // location.reload();
+          // console.log("Đã gưi");
         })
       );
-      socket.on("notiEveryDay", async () => {
-        // ///////////////////
-        // lấy ngày hiện tại
-        const currentdate = moment().format("YYYY-MM-DD");
-        // console.log(currentdate);
-        // Lấy id User
-        const _idUser = sessionStorage.getItem("UserId");
-        // console.log(_idUser);
-        // Load tất cả cuộc hẹn
-        const loadapp = await http_getAll(Appointment);
-        // console.log(loadapp);
-        // Lọc và hiển thị chỉ các cuộc hẹn có UserId bằng với _idUser
-        const filteredAppointments = loadapp.filter(
-          (appointment) => appointment.UserId === _idUser
-        );
-        // duyệt qua kết quả lọc
-        for (const appointment of filteredAppointments) {
-          // lấy ra ngày của các cuộc hẹn
-          const getDateAppointment = moment(
-            appointment.start_date,
-            "YYYY-MM-DD"
-          );
-          // nếu ngày hiện tại trước ngày diễn ra cuộc hẹn
-          if (moment(currentdate).isBefore(getDateAppointment, "day")) {
-            // console.log("appointment:", appointment);
-            // Kiểm tra nếu getDateAppointment bằng currentdate + 1
-            // Nếu ngày cuộc hẹn = ngày hiện tại + 1
-            if (
-              moment(currentdate)
-                .add(1, "days")
-                .isSame(getDateAppointment, "day")
-            ) {
-              // console.log(
-              //   "getDateAppointment is equal to currentdate + 1",
-              //   appointment
-              // );
-              // Thêm dữ liệu cho thông báo
-              const NoticeData = {
-                title: `Thông Báo`,
-                content: `Sắp Tới Ngày Hẹn ${
-                  appointment.appointment_type
-                } Tại ${appointment.place} Ngày ${formatDate(
-                  appointment.start_date
-                )}`,
-                isRead: false,
-                AppointmentId: appointment._id,
-              };
-              // console.log("noticedata", NoticeData);
-              // const AddNoti = await http_create(Notification, NoticeData);
-              // console.log("DataBaseNoti", AddNoti);
-              // lấy ra tất cả thông báo
-              const getAllNoti = await http_getAll(Notification);
-              // console.log(getAllNoti);
-              if (getAllNoti.documents && Array.isArray(getAllNoti.documents)) {
-                // Kiểm tra xem NoticeData đã tồn tại trong getAllNoti.documents
-                const existingNotice = getAllNoti.documents.some(
-                  (notice) => notice.AppointmentId === NoticeData.AppointmentId
-                );
+      // socket.on("a"),
+      //   async (NoticeData) => {
+      //     // count.value++;
+      //     console.log(NoticeData);
+      //     socket.emit("appointment", NoticeData);
+      //     // location.reload();
+      //   };
+      // socket.on("notiEveryDay", async (appointmentServerfromClient) => {
+      //   // lấy ngày hiện tại
+      //   const currentdate = moment().format("YYYY-MM-DD");
+      //   // Lấy id User
+      //   const _idUser = sessionStorage.getItem("UserId");
+      //   // Lọc appointmentServerfromClient theo _idUser
+      //   const filteredAppointments = appointmentServerfromClient.filter(
+      //     (appointment) => appointment.UserId === _idUser
+      //   );
+      //   // duyệt qua kết quả lọc
+      //   for (const appointment of filteredAppointments) {
+      //     // lấy ra ngày của các cuộc hẹn
+      //     const getDateAppointment = moment(
+      //       appointment.start_date,
+      //       "YYYY-MM-DD"
+      //     );
+      //     // nếu ngày hiện tại trước ngày diễn ra cuộc hẹn
+      //     if (moment(currentdate).isBefore(getDateAppointment, "day")) {
+      //       const TimeSet = await http_getAll(SetTime);
+      //       const id = sessionStorage.getItem("UserId");
+      //       const filteredTimeSet = TimeSet.documents.filter(
+      //         (item) => item.UserId === id
+      //       );
+      //       // Nếu ngày cuộc hẹn = ngày hiện tại + ngày người dùng set
+      //       if (
+      //         moment(currentdate)
+      //           .add(filteredTimeSet[0].day, "days")
+      //           .isSame(getDateAppointment, "day")
+      //       ) {
+      //         // Thêm dữ liệu cho thông báo
+      //         const NoticeData = {
+      //           title: `Thông Báo`,
+      //           content: `Sắp Tới Ngày Hẹn ${
+      //             appointment.appointment_type
+      //           } Tại ${appointment.place} Ngày ${formatDate(
+      //             appointment.start_date
+      //           )}`,
+      //           isRead: false,
+      //           AppointmentId: appointment._id,
+      //         };
+      //         // lấy ra tất cả thông báo
+      //         const getAllNoti = await http_getAll(Notification);
+      //         // console.log(getAllNoti);
+      //         if (getAllNoti.documents && Array.isArray(getAllNoti.documents)) {
+      //           // Kiểm tra xem NoticeData đã tồn tại trong getAllNoti.documents
+      //           const existingNotice = getAllNoti.documents.some(
+      //             (notice) => notice.AppointmentId === NoticeData.AppointmentId
+      //           );
 
-                if (existingNotice) {
-                  console.log("NoticeData đã tồn tại trong cơ sở dữ liệu.");
-                  // Không cần thực hiện http_create
-                } else {
-                  console.log(
-                    "NoticeData chưa tồn tại trong cơ sở dữ liệu. Thực hiện http_create."
-                  );
-                  const AddNoti = await http_create(Notification, NoticeData);
-                  // console.log("DataBaseNoti", AddNoti);
-                  if (!AddNoti.error) {
-                    // console.log("noti", NoticeData);
-                    socket.emit("appointment", NoticeData);
-                  }
-                }
-              }
-            }
-          }
-        }
-      });
+      //           if (existingNotice) {
+      //             console.log("NoticeData đã tồn tại trong cơ sở dữ liệu.");
+      //             // Không cần thực hiện http_create
+      //           } else {
+      //             console.log(
+      //               "NoticeData chưa tồn tại trong cơ sở dữ liệu. Thực hiện tạo thông báo."
+      //             );
+      //             const AddNoti = await http_create(Notification, NoticeData);
+      //             // console.log("DataBaseNoti", AddNoti);
+      //             if (!AddNoti.error) {
+      //               // console.log("noti", NoticeData);
+      //               socket.emit("appointment", NoticeData);
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // });
     };
     const hasNotification = ref(false);
     const showNotification = ref(false);
@@ -343,7 +343,7 @@ export default {
   >
     <a
       class="h5 my-auto d-none d-xl-block ml-3"
-      style="color: #1470D2; font-weight: bold"
+      style="color: #1470d2; font-weight: bold"
       >FAMILY CARE ADMINISTRATOR</a
     >
     <a class="d-xl-none d-sm-block text-dark h5 my-auto"

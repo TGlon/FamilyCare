@@ -203,7 +203,7 @@
                   class="col-form-label col-4"
                   style="font-weight: bold; color: white"
                 >
-                  Mã Định Danh(<span style="color: red">*</span>):
+                  Nghề Nghiệp(<span style="color: red">*</span>):
                 </label>
                 <div class="col-8">
                   <input
@@ -287,12 +287,12 @@
               >
                 Đăng Ký
               </button>
-              <p style="color: aliceblue; font-weight: bold; margin-top: 15px">
+              <!-- <p style="color: aliceblue; font-weight: bold; margin-top: 15px">
                 Đã có tài khoản?
                 <router-link to="/login" style="color: #7091f5"
                   >Đăng Nhập</router-link
                 >
-              </p>
+              </p> -->
             </form>
           </div>
         </div>
@@ -309,6 +309,7 @@ import { alert_error, alert_success } from "./assets/js/common.alert";
 import { http_create } from "../src/assets/js/common.http";
 import User from "../src/services/user.service";
 import Account from "../src/services/account.services";
+import SetTime from "./services/settime.service";
 export default {
   setup() {
     const showPassword = ref(false);
@@ -352,10 +353,14 @@ export default {
         const accountData = {
           username: username.value,
           password: password.value,
-          roleId: "968daed5-1be8-43c1-9b39-1ebddc184488",
+          roleId: "015302c9-a357-4c94-ad7a-a8bb83ca929e",
           UserId: CreateUser.document._id,
         };
-
+        const dataTime = {
+          day: "1",
+          UserId: CreateUser.document._id
+        }
+        const CreateTimeNotiDefault = await http_create(SetTime, dataTime);
         const CreateAccount = await http_create(Account, accountData);
 
         // Nếu tạo tài khoản thành công, hiển thị thông báo thành công

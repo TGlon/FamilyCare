@@ -158,6 +158,7 @@ export default {
           router.push({ name: "Login" });
         }
       } catch (error) {
+        alert_error("Tài Khoản Không Tồn Tại", "Username Hoặc Password Không Tồn Tại")
         console.log(error);
       }
     };

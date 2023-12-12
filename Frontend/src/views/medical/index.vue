@@ -251,6 +251,11 @@ export default {
               start_date: item.Appointment ? item.Appointment.start_date : "-",
             };
           })
+          .sort((a, b) => {
+        const dateA = new Date(b.start_date);
+        const dateB = new Date(a.start_date);
+        return dateA - dateB;
+      })
           .filter((item, index) => {
             return (
               index + 1 > (data.currentPage - 1) * data.entryValue &&

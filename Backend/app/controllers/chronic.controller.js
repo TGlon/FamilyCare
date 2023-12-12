@@ -63,7 +63,7 @@ exports.findAll = async (req, res, next) => {
         model: User,
       }]
     });
-    return res.send(documents);
+    return res.send( documents.sort((a, b) => new Date(b.diagnosis_date) - new Date(a.diagnosis_date)));
   } catch (error) {
     console.log(error);
     return next(createError(400, "Error finding all chronic!"));

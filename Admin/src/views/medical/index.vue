@@ -481,7 +481,13 @@ export default {
       );
 
       if (isConfirmed) {
-        await http_deleteAll(Medical);
+        const medicalRecords = await http_getAll(Medical);
+
+        // Iterate through each record and deleteOne
+        for (const record of medicalRecords) {
+          await http_deleteOne(Medical, record._id);
+        }
+
         refresh();
       }
     };

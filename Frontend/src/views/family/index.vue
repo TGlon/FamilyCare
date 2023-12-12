@@ -295,7 +295,7 @@ export default {
           );
           refresh();
         } else {
-          alert_error(`Thêm Quan Hệ`, `${userFamilyResult.msg}`);
+          alert_error(`Thêm Quan Hệ`, `Thêm Thành Viên Lỗi Vui Lòng Kiểm Tra Lại Thông Tin`);
         }
       } else {
         alert_error("Lỗi", "Thành Viên Không Tồn Tại Trong Hệ Thống");

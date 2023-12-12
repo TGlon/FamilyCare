@@ -119,7 +119,7 @@
 </template>
 
 <script>
-import Table from "../../components/table/tbl_famrls.vue";
+import Table from "../../components/table/tbl_health.vue";
 import Search from "../../components/form/search.vue";
 import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
@@ -141,6 +141,7 @@ import {
 } from "../../assets/js/common.alert";
 import Vaccination from "../../services/vaccination.service";
 import Medical from "../../services/medical.service";
+import { formatDate } from "../../assets/js/common.format";
 export default {
   components: {
     Table,
@@ -176,7 +177,7 @@ export default {
     const toString = computed(() => {
       console.log("Starting search");
       return data.items.map((value, index) => {
-        return [value.appointment_type].join("").toLocaleLowerCase();
+        return [value.appointment_type, value.start_date, value.place, value.note].join("").toLocaleLowerCase();
       });
     });
     const filter = computed(() => {
@@ -211,7 +212,9 @@ export default {
             index + 1 > (data.currentPage - 1) * data.entryValue &&
             index + 1 <= data.currentPage * data.entryValue
           );
+          
         });
+        
       } else return data.items.value;
     });
 
@@ -235,25 +238,25 @@ export default {
         );
         if (result.document.appointment_type === "Tiêm Ngừa Covid 19") {
           const VaccData = {
-            vaccination: "Tiêm Ngừa Covid",
+            vaccination: "Covid 19",
             vaccine: "N/A",
             doses: "N/A",
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "3255b608-f9e8-4aaf-8ec0-d911da5f18d0",
+            VaccineTypeId: "4f663f89-50e2-46c1-8560-4f177f59f519",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
         } else if (result.document.appointment_type === "Tiêm Ngừa Uốn Ván") {
           const VaccData = {
-            vaccination: "Tiêm Ngừa Uốn Ván",
+            vaccination: "Uốn Ván",
             vaccine: "N/A",
             doses: "N/A",
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "f0806c74-4e46-4de9-b631-d89edf676517",
+            VaccineTypeId: "f9704062-0364-4555-bd67-3ee563aa231b",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -265,7 +268,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "4ec041ff-53e5-409b-a148-d41261361853",
+            VaccineTypeId: "5f38067e-9cd0-4a2d-93e9-8fadcc0dc702",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -279,7 +282,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "b010e9f9-bb13-4a99-9413-8b2b3d4a1cc9",
+            VaccineTypeId: "6d5b4721-0d7d-481a-968b-2a74e7269ab0",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -293,7 +296,7 @@ export default {
             doctor: "N/A",
             note: "",
             AppointmentId: result.document._id,
-            VaccineTypeId: "5c93ebcc-1ed6-48b6-a8de-ec458d72384e",
+            VaccineTypeId: "db1a3d90-d1b0-4deb-9b2b-40a0d1b3b7ae",
           };
           const CreateVaccination = await http_create(Vaccination, VaccData);
           // console.log("Data Vacc:", CreateVaccination);
@@ -375,6 +378,7 @@ export default {
       data.items = data.items.filter(
         (appointment) => appointment.UserId === id
       );
+      
     };
 
     onBeforeMount(async () => {

@@ -1,7 +1,13 @@
 //model
 const {} = require("./app/models/index.model");
 //
-const { User, Appointment } = require("./app/models/index.model");
+const {
+  User,
+  Appointment,
+  SetTime,
+  Notification,
+  SetTimeNotiAdmin
+} = require("./app/models/index.model");
 // npm packages
 const createError = require("http-errors");
 const express = require("express");
@@ -26,72 +32,214 @@ const io = require("socket.io")(server, {
   },
 });
 const cron = require("node-cron");
-io.on("connection", (socket) => {
-  console.log("a user connected");
+io.on("connection", async(socket) => {
+  console.log("A User Connected");
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    console.log("User Disconnected");
   });
-  cron.schedule("52 17 * * *", () => {
-    socket.emit("notiEveryDay");
-  });
-  // Listen for the "appointment" event
-  socket.on("appointment", async (NoticeData) => {
-    // console.log("Received filtered appointments:", NoticeData);
+  
+  cron.schedule("15 00 * * *", async () => {
     const app = await Appointment.findAll();
-    const filteredAppointments = [];
+    const currentDate = moment();
+    // Định dạng ngày theo định dạng mong muốn
+    const formattedDate = currentDate.format("YYYY-MM-DD");
+    // Lọc các mục có start_date là ngày formattedDate hoặc sau ngày formattedDate
+    const filteredAppointments = app.filter((appointment) =>
+      moment(formattedDate).isBefore(appointment.start_date, "day")
+    );
 
-    for (const appointment of app) {
-      if (appointment._id === NoticeData.AppointmentId) {
-        filteredAppointments.push(appointment);
-      }
-    }
+    // Log UserId của các filteredAppointments
+    // Sử dụng map để trích xuất UserId và chuyển thành Set để loại bỏ giá trị trùng lặp
+    const userIdsSet = new Set(
+      filteredAppointments.map((appointment) => appointment.UserId)
+    );
+    // Chuyển Set thành mảng nếu cần
+    const uniqueUserIds = Array.from(userIdsSet);
+    // Tìm tất cả các SetTime
+    const allSetTimes = await SetTime.findAll();
+    // Lọc SetTime có giá trị UserId tương ứng có trong uniqueUserIds
+    const matchingSetTimes = allSetTimes.filter((setTime) =>
+      uniqueUserIds.includes(setTime.UserId)
+    );
+    // Lặp qua từng uniqueUserId để xử lý từng user
+    for (const userId of uniqueUserIds) {
+      // Lấy tất cả các SetTime của user hiện tại
+      const userSetTimes = matchingSetTimes.filter(
+        (setTime) => setTime.UserId === userId
+      );
+      // Lặp qua từng SetTime của user
+      for (const setTime of userSetTimes) {
+        // Tính ngày thông báo trước của user
+        const notificationDate = moment(formattedDate).add(setTime.day, "days");
+        // Lọc các cuộc hẹn có start_date bằng với ngày thông báo trước của user
+        const appointmentsToNotify = filteredAppointments.filter(
+          (appointment) =>
+            moment(appointment.start_date).isSame(notificationDate, "day")
+        );
+        // Log ra thông báo cho user nếu có cuộc hẹn cần thông báo
+        if (appointmentsToNotify.length > 0) {
+          console.log(
+            `User ${userId} has appointments to be notified on ${notificationDate.format(
+              "YYYY-MM-DD"
+            )}:`
+          );
+          appointmentsToNotify.forEach(async (appointment) => {
+            console.log(
+              `- Appointment ID: ${appointment._id}, Start Date: ${appointment.start_date}`
+            );
+            const originalStartDate = new Date(appointment.start_date);
+            const formattedStartDate = `${originalStartDate.getDate().toString().padStart(2, '0')}-${(originalStartDate.getMonth() + 1).toString().padStart(2, '0')}-${originalStartDate.getFullYear()}`;
 
-    // console.log("Filtered appointments:", filteredAppointments);
-    const usr = await User.findAll();
-    const matchedUsers = [];
-
-    for (const user of usr) {
-      for (const appointment of filteredAppointments) {
-        if (user._id === appointment.UserId) {
-          matchedUsers.push(user);
-        }
-      }
-    }
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "tlong2021315@gmail.com",
-        pass: "mjpxlyyygfyqpwls",
-      },
-    });
-    for (const appointment of filteredAppointments) {
-      const user = matchedUsers.find((u) => u._id === appointment.UserId);
-      if (user) {
-        const startDate = new Date(appointment.start_date);
-        const formattedDate = `${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}`;
-        const mailOptions = {
-          from: "tlong2021315@gmail.com",
-          to: user.email,
-          subject: "Thông Báo Lịch Hẹn Sắp Tới",
-          html: `Dear ${user.name}!
-          <br> Chúng tôi xin gửi thông báo về cuộc hẹn ${appointment.appointment_type} diễn ra vào ngày ${formattedDate}. Chúng tôi rất mong bạn sẽ chú ý thời gian cuộc hẹn quan trọng này để sắp xếp công việc.
+            const NoticeData = {
+              title: `Thông Báo`,
+              content: `Sắp Tới Ngày Hẹn ${appointment.appointment_type} Tại ${appointment.place} Ngày ${formattedStartDate}`,
+              isRead: false,
+              AppointmentId: appointment._id,
+            };
+            // console.log("NoticeData new",NoticeData);
+            const getAllNoti = await Notification.findAll();
+            console.log("getAllNoti", getAllNoti);
+            // Kiểm tra xem NoticeData có tồn tại trong getAllNoti không
+            const isNoticeDataExists = getAllNoti.some(
+              (noti) => noti.AppointmentId === NoticeData.AppointmentId
+            );
+            if (isNoticeDataExists) {
+              console.log("Thông báo đã tồn tại");
+            } else {
+              socket.emit("a");
+              await Notification.create(NoticeData);
+              console.log("Thông báo chưa tồn tại", NoticeData);
+              const app = await Appointment.findAll();
+              const filteredAppointments = [];
+              for (const appointment of app) {
+                if (appointment._id === NoticeData.AppointmentId) {
+                  filteredAppointments.push(appointment);
+                }
+              }
+              // console.log("Filtered appointments:", filteredAppointments);
+              const usr = await User.findAll();
+              const matchedUsers = [];
+              for (const user of usr) {
+                for (const appointment of filteredAppointments) {
+                  if (user._id === appointment.UserId) {
+                    matchedUsers.push(user);
+                  }
+                }
+              }
+              const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                  user: "tlong2021315@gmail.com",
+                  pass: "mjpxlyyygfyqpwls",
+                },
+              });
+              for (const appointment of filteredAppointments) {
+                const user = matchedUsers.find(
+                  (u) => u._id === appointment.UserId
+                );
+                if (user) {
+                  const startDate = new Date(appointment.start_date);
+                  const formattedDate = `${startDate.getDate()}/${
+                    startDate.getMonth() + 1
+                  }/${startDate.getFullYear()}`;
+                  const mailOptions = {
+                    from: "tlong2021315@gmail.com",
+                    to: user.email,
+                    subject: "Thông Báo Lịch Hẹn Sắp Tới",
+                    html: `Dear ${user.name}!
+          <br> Chúng tôi xin gửi thông báo về cuộc hẹn ${
+            appointment.appointment_type
+          } diễn ra vào ngày ${formattedDate}. Chúng tôi rất mong bạn sẽ chú ý thời gian cuộc hẹn quan trọng này để sắp xếp công việc.
           <br>Thông tin chi tiết về cuộc họp:
           <br>- Ngày: ${formattedDate}
           <br>- Địa điểm: ${appointment.place}
-          <br>- ${appointment.note != null ? `Ghi chú: ${appointment.note}` : 'Ghi chú: '}    
+          <br>- ${
+            appointment.note != null
+              ? `Ghi chú: ${appointment.note}`
+              : "Ghi chú: "
+          }    
           <br>Xin lỗi nếu thông tin này làm phiền bạn, và nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua địa chỉ email hoặc số điện thoại sau:
-          <br>-Email: tlong2021315@email.com
-          <br>-Số điện thoại: +84 941 636 509
+          <br>- Email: tlong2021315@email.com
+          <br>- Số điện thoại: +84 941 636 509
           <br>
           <br>Trân trọng,
           <br>Family Care
           `,
-        };
-        const info = await transporter.sendMail(mailOptions);
+                  };
+                  const info = await transporter.sendMail(mailOptions);
+                }
+              }
+            }
+          });
+        }
       }
     }
-    io.emit("appointmentNoti");
   });
+  // socket.on("appointment", async (NoticeData) => {
+  //   // console.log("Received filtered appointments:", NoticeData);
+  //   const app = await Appointment.findAll();
+  //   const filteredAppointments = [];
+
+  //   for (const appointment of app) {
+  //     if (appointment._id === NoticeData.AppointmentId) {
+  //       filteredAppointments.push(appointment);
+  //     }
+  //   }
+
+  //   // console.log("Filtered appointments:", filteredAppointments);
+  //   const usr = await User.findAll();
+  //   const matchedUsers = [];
+
+  //   for (const user of usr) {
+  //     for (const appointment of filteredAppointments) {
+  //       if (user._id === appointment.UserId) {
+  //         matchedUsers.push(user);
+  //       }
+  //     }
+  //   }
+  //   const transporter = nodemailer.createTransport({
+  //     service: "gmail",
+  //     auth: {
+  //       user: "tlong2021315@gmail.com",
+  //       pass: "mjpxlyyygfyqpwls",
+  //     },
+  //   });
+  //   for (const appointment of filteredAppointments) {
+  //     const user = matchedUsers.find((u) => u._id === appointment.UserId);
+  //     if (user) {
+  //       const startDate = new Date(appointment.start_date);
+  //       const formattedDate = `${startDate.getDate()}/${
+  //         startDate.getMonth() + 1
+  //       }/${startDate.getFullYear()}`;
+  //       const mailOptions = {
+  //         from: "tlong2021315@gmail.com",
+  //         to: user.email,
+  //         subject: "Thông Báo Lịch Hẹn Sắp Tới",
+  //         html: `Dear ${user.name}!
+  //         <br> Chúng tôi xin gửi thông báo về cuộc hẹn ${
+  //           appointment.appointment_type
+  //         } diễn ra vào ngày ${formattedDate}. Chúng tôi rất mong bạn sẽ chú ý thời gian cuộc hẹn quan trọng này để sắp xếp công việc.
+  //         <br>Thông tin chi tiết về cuộc họp:
+  //         <br>- Ngày: ${formattedDate}
+  //         <br>- Địa điểm: ${appointment.place}
+  //         <br>- ${
+  //           appointment.note != null
+  //             ? `Ghi chú: ${appointment.note}`
+  //             : "Ghi chú: "
+  //         }    
+  //         <br>Xin lỗi nếu thông tin này làm phiền bạn, và nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua địa chỉ email hoặc số điện thoại sau:
+  //         <br>-Email: tlong2021315@email.com
+  //         <br>-Số điện thoại: +84 941 636 509
+  //         <br>
+  //         <br>Trân trọng,
+  //         <br>Family Care
+  //         `,
+  //       };
+  //       const info = await transporter.sendMail(mailOptions);
+  //     }
+  //   }
+  //   io.emit("appointmentNoti");
+  // });
 });
 
 // const http = require("http");
@@ -114,10 +262,12 @@ const FamilyRouter = require("./app/routes/family.route");
 const NotificationRouter = require("./app/routes/notification.route");
 const UserFamilyRouter = require("./app/routes/user_family.route");
 const RoleRouter = require("./app/routes/role.route");
-const Role_PermissionRouter = require("./app/routes/role_permisson.route");
-const PermissionRouter = require("./app/routes/permission.route");
+// const Role_PermissionRouter = require("./app/routes/role_permisson.route");
+const SetTimeAdminRouter = require("./app/routes/settimeadmin.route")
+// const PermissionRouter = require("./app/routes/permission.route");
 const LoginRouter = require("./app/routes/login.route");
 // const MailRouter = require("./app/routes/mail.route");
+const SetTimeRouter = require("./app/routes/settime.route");
 // use router
 app.use("/api/accounts", AccountRouter);
 app.use("/api/users", UserRouter);
@@ -136,13 +286,15 @@ app.use("/api/families", FamilyRouter);
 app.use("/api/notifications", NotificationRouter);
 app.use("/api/userfamilies", UserFamilyRouter);
 app.use("/api/roles", RoleRouter);
-app.use("/api/permissions", PermissionRouter);
-app.use("/api/role_permissions", Role_PermissionRouter);
+// app.use("/api/permissions", PermissionRouter);
+// app.use("/api/role_permissions", Role_PermissionRouter);
 app.use("/api/login", LoginRouter);
 // app.use("/api/mail", MailRouter);
+app.use("/api/settimes", SetTimeRouter);
+app.use("/api/settimenotiadmins", SetTimeAdminRouter)
 // start server
 const { config } = require("./app/config/index");
-const { log } = require("console");
+const { log, Console } = require("console");
 const PORT = config.app.port;
 server.listen(PORT, () => {
   console.log(`Server is listening on port 3000`);

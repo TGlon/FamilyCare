@@ -28,7 +28,7 @@ exports.create = async (req, res, next) => {
         vaccine: req.body.vaccine,
         doses: req.body.doses,
         doctor: req.body.doctor,
-        note: req.body.note,
+        note: req.body.note || "",
         AppointmentId: req.body.AppointmentId,
         VaccineTypeId: req.body.VaccineTypeId,
       });

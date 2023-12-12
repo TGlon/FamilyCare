@@ -248,12 +248,17 @@ export default {
         } else data.numberOfPages = setNumberOfPages.value;
         data.startRow = (data.currentPage - 1) * data.entryValue + 1;
         data.endRow = data.currentPage * data.entryValue;
-        return filtered.value
+
+        const sortedPages = filtered.value
           .map((item) => {
             return {
               ...item,
               name: item.User ? item.User.name : "-",
             };
+          })
+          .sort((a, b) => {
+            // Assuming name is a string, adjust the comparison accordingly
+            return a.name.localeCompare(b.name);
           })
           .filter((item, index) => {
             return (
@@ -261,8 +266,11 @@ export default {
               index + 1 <= data.currentPage * data.entryValue
             );
           });
+
+        return sortedPages;
       } else return data.items.value;
     });
+
     // Methods
     const create = async () => {
       const id = sessionStorage.getItem("UserId");

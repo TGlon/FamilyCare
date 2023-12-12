@@ -32,16 +32,21 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="currentPassword">Thời Gian Thông Báo</label>
+                <!-- {{ data.day }} -->
+                <label for="day">Thời Gian Thông Báo (Ngày)</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="currentPassword"
-                  name="currentPassword"
-                  placeholder="Ví Dụ: Thông Báo Trước 1 Ngày. Nhập Số 1"
+                  id="day"
+                  name="day"
+                  v-model="data.day"
+                  style="width: 170px"
                 />
               </div>
-              
+              <small
+                >Ví Dụ: Nếu Bạn Muốn Thông Báo Trước 1 Ngày. Nhập Vào Số
+                1</small
+              >
             </div>
           </div>
 
@@ -52,7 +57,62 @@
               <button
                 type="button"
                 class="btn btn-primary mr-3"
-                @click="updatePassword"
+                @click="updateTime"
+              >
+                Lưu Thay Đổi
+              </button>
+              <!-- <button type="button" class="btn btn-secondary">Thiết Lập Lại</button> -->
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="border-box d-flex flex-column ml-2 mt-3">
+    <!-- Menu -->
+    <div class="card m-3">
+      <div class="card-body">
+        <h4 class="card-title font-weight-bold mb-4">
+          Thiết Lập Giờ Thông Báo
+        </h4>
+        <form>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="h">Giờ</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="h"
+                  name="h"
+                  style="width: 100px"
+                  v-model="data.h"
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="m">Phút</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="m"
+                  name="m"
+                  style="width: 100px"
+                  v-model="data.m"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="border-hr"></div>
+
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <button
+                type="button"
+                class="btn btn-primary mr-3"
+                @click="updateNotiTimeAdmin"
               >
                 Lưu Thay Đổi
               </button>
@@ -66,25 +126,77 @@
 </template>
 
 <script>
-import Account from "../../services/account.services";
+import SetTime from "../../services/settime.service";
 import { reactive, onBeforeMount } from "vue";
-import {
-  http_update,
-  http_findAccountByUserId,
-} from "../../assets/js/common.http";
+import { http_getAll, http_update } from "../../assets/js/common.http";
 import { alert_error, alert_success } from "../../assets/js/common.alert";
+import SetTimeNotiAdmin from "../../services/settimeNotiadmin.service";
 export default {
   components: {},
   setup() {
     const data = reactive({
-      item: {},
-
+      items: [],
+      day: "",
+      NotiTime: [],
+      h: "",
+      m: "",
     });
 
-    
-
     const refresh = async () => {
-      
+      try {
+        data.items = await http_getAll(SetTime);
+        const id = sessionStorage.getItem("UserId");
+        data.items = data.items.documents.filter((item) => item.UserId === id);
+        data.day = data.items.length > 0 ? data.items[0].day : "";
+        data.NotiTime = await http_getAll(SetTimeNotiAdmin);
+        if (data.NotiTime.documents.length > 0) {
+          // Lấy giá trị h và m từ phần tử đầu tiên trong mảng documents
+          const firstNotiTime = data.NotiTime.documents[0];
+          data.h = firstNotiTime.h || "";
+          data.m = firstNotiTime.m || "";
+         
+          // Log để kiểm tra giá trị đã được gán
+          console.log("h:", data.h, "m:", data.m);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    const updateTime = async () => {
+      try {
+        const id = sessionStorage.getItem("UserId");
+        const dataUpdate = {
+          day: data.day,
+          UserId: id,
+        };
+        const result = await http_update(
+          SetTime,
+          data.items[0]._id,
+          dataUpdate
+        );
+        if (result) {
+          alert_success("Thông Báo", "Bạn Đã Cập Nhật Thành Công");
+          refresh();
+        } else {
+          alert_error("Lỗi", "Cập Nhật Thất Bại");
+        }
+      } catch (error) {
+        console.error("Error updating data:", error);
+      }
+    };
+    const updateNotiTimeAdmin = async () => {
+      const dataUpdate = {
+        h: data.h,
+        m: data.m,
+      };
+      const result = await http_update(SetTimeNotiAdmin, data.NotiTime.documents[0]._id,dataUpdate);
+      if (result) {
+        alert_success("Thông Báo", "Bạn Đã Cập Nhật Thành Công");
+        refresh();
+      } else {
+        alert_error("Lỗi", "Cập Nhật Thất Bại");
+      }
     };
 
     onBeforeMount(async () => {
@@ -93,7 +205,8 @@ export default {
 
     return {
       data,
-    
+      updateTime,
+      updateNotiTimeAdmin
     };
   },
 };

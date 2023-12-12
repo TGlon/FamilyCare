@@ -252,21 +252,25 @@ export default {
         } else data.numberOfPages = setNumberOfPages.value;
         data.startRow = (data.currentPage - 1) * data.entryValue + 1;
         data.endRow = data.currentPage * data.entryValue;
-        return filtered.value
+
+        const sortedPages = filtered.value
           .map((item) => {
             return {
               ...item,
               name: item.User ? item.User.name : "-",
             };
           })
-          .filter((item, index) => {
-            return (
-              index + 1 > (data.currentPage - 1) * data.entryValue &&
-              index + 1 <= data.currentPage * data.entryValue
-            );
-          });
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        return sortedPages.filter((item, index) => {
+          return (
+            index + 1 > (data.currentPage - 1) * data.entryValue &&
+            index + 1 <= data.currentPage * data.entryValue
+          );
+        });
       } else return data.items.value;
     });
+
     // Methods
     const create = async () => {
       const idne = sessionStorage.getItem("UserId");

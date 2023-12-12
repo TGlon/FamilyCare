@@ -689,6 +689,40 @@ const Appointment = sequelize.define("Appointment", {
     },
   },
 });
+const SetTime = sequelize.define("SetTime", {
+  _id: setPrimary,
+  day: {
+    type: DataTypes.TEXT,
+    get() {
+      return getDecrypt("day", this);
+    },
+    set(value) {
+      setEncrypt(value, "day", this);
+    },
+  },
+});
+const SetTimeNotiAdmin = sequelize.define("SetTimeNotiAdmin", {
+  _id: setPrimary,
+  h: {
+    type: DataTypes.TEXT,
+    get() {
+      return getDecrypt("h", this);
+    },
+    set(value) {
+      setEncrypt(value, "h", this);
+    },
+  },
+  m: {
+    type: DataTypes.TEXT,
+    get() {
+      return getDecrypt("m", this);
+    },
+    set(value) {
+      setEncrypt(value, "m", this);
+    },
+  },
+});
+
 const Vaccination_History = sequelize.define("Vaccination_History", {
   _id: setPrimary,
   vaccination: {
@@ -1004,24 +1038,24 @@ const Notification = sequelize.define("Notification", {
     defaultValue: false,
   },
 });
-const Permission = sequelize.define("Permission", {
-  _id: setPrimary,
-  name: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-    validate: {
-      notEmpty: {
-        msg: "Tên quyền không được bỏ trống.",
-      },
-    },
-    get() {
-      return getDecrypt("name", this);
-    },
-    set(value) {
-      setEncrypt(value, "name", this);
-    },
-  },
-});
+// const Permission = sequelize.define("Permission", {
+//   _id: setPrimary,
+//   name: {
+//     type: DataTypes.TEXT,
+//     allowNull: false,
+//     validate: {
+//       notEmpty: {
+//         msg: "Tên quyền không được bỏ trống.",
+//       },
+//     },
+//     get() {
+//       return getDecrypt("name", this);
+//     },
+//     set(value) {
+//       setEncrypt(value, "name", this);
+//     },
+//   },
+// });
 // Relationships
 // One to Many
 User.hasMany(Work_User, {
@@ -1180,6 +1214,17 @@ Medicine.belongsTo(Medical_History, {
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
+// ---------------------//
+User.hasOne(SetTime, {
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+})
+SetTime.belongsTo(User, {
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+})
+// -------------------- //
+
 // -------------------- //
 Appointment.hasOne(Notification, {
   onDelete: "CASCADE",
@@ -1218,21 +1263,21 @@ Family.belongsToMany(User, {
   onUpdate: "CASCADE",
 });
 // ----------------------- //
-const Role_Permission = sequelize.define("Role_Permission", {});
-Role.belongsToMany(Permission, {
-  through: Role_Permission,
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-});
-Permission.belongsToMany(Role, {
-  through: Role_Permission,
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-});
+// const Role_Permission = sequelize.define("Role_Permission", {});
+// Role.belongsToMany(Permission, {
+//   through: Role_Permission,
+//   onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// });
+// Permission.belongsToMany(Role, {
+//   through: Role_Permission,
+//   onDelete: "CASCADE",
+//   onUpdate: "CASCADE",
+// });
 // Sync the model with the database
 User.sync();
 Health_Statistics.sync();
-Account.sync();
+
 Family.sync();
 User_Family.sync();
 Work_User.sync();
@@ -1247,8 +1292,11 @@ Medicine.sync();
 // Medicine_Type.sync();
 Notification.sync();
 Role.sync();
-Permission.sync();
-Role_Permission.sync();
+Account.sync();
+// Permission.sync();
+// Role_Permission.sync();
+SetTime.sync();
+SetTimeNotiAdmin.sync();
 module.exports = {
   User,
   Health_Statistics,
@@ -1267,6 +1315,8 @@ module.exports = {
   // Medicine_Type,
   Notification,
   Role,
-  Role_Permission,
-  Permission
+  // Role_Permission,
+  // Permission
+  SetTime,
+  SetTimeNotiAdmin
 };

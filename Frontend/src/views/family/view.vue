@@ -19,7 +19,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#personal-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0; width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Thông tin cá nhân
@@ -66,7 +66,7 @@
                         {{ item.passport }}
                       </p>
                       <p class="mb-0">
-                        <span class="font-weight-bold">Mã Định Danh:</span>
+                        <span class="font-weight-bold">Nghề Nghiệp:</span>
                         {{ item.digital_identity }}
                       </p>
                       <p class="mb-0">
@@ -97,7 +97,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#medicine-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0; width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Thông Tin Sức Khỏe
@@ -138,7 +138,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#medical-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0; width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Tiền Sử Bệnh Tật
@@ -190,7 +190,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#Vaccination-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0; width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Lịch Sử Tiêm Ngừa
@@ -236,7 +236,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#Allergy-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0; width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Thông Tin Dị Ứng 
@@ -278,7 +278,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#chronic-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0; width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Thông Tin Bệnh Mãn Tính 

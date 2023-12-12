@@ -113,7 +113,7 @@ export default {
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <label for="digital_identity">Mã Định Danh</label>
+                  <label for="digital_identity">Nghề Nghiệp</label>
                   <input
                     type="text"
                     class="form-control"

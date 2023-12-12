@@ -1,5 +1,6 @@
 <script>
 import { reactive } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 export default {
   props: {
     item: {
@@ -13,8 +14,117 @@ export default {
       ctx.emit("create");
       console.log("Thêm Thành Công");
     };
+    const item = ref(props.item);
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "vi";
+    let isListening = ref(false);
+    let shouldRestartRecognition = true;
+
+    recognition.onstart = () => {
+      isListening.value = true;
+    };
+
+    recognition.onend = () => {
+      isListening.value = false;
+      if (shouldRestartRecognition) {
+        recognition.start();
+      }
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      handleVoiceCommand(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Lỗi nhận dạng giọng nói:", event.error);
+    };
+    const toggleVoiceRecognition = () => {
+      if (isListening.value) {
+        stopRecognition();
+      } else {
+        recognition.start();
+        isListening.value = true;
+        shouldRestartRecognition = true;
+      }
+    };
+
+    const stopRecognition = () => {
+      recognition.stop();
+      shouldRestartRecognition = false;
+    };
+    const handleVoiceCommand = (command) => {
+      const keywords = [
+        "cuộc hẹn",
+        "ngày bắt đầu",
+        "địa điểm",
+        "trạng thái",
+        "ghi chú",
+      ];
+
+      for (const keyword of keywords) {
+        if (command.includes(keyword)) {
+          const value = command.replace(keyword, "").trim();
+          console.log("Keyword:", keyword, "Value:", value);
+          switch (keyword) {
+            case "cuộc hẹn":
+              const lowercasedValue = value.toLowerCase();
+              const appointmentTypes = [
+                "Khám Bệnh",
+                "Tiêm Ngừa Covid 19",
+                "Tiêm Ngừa Uốn Ván",
+                "Tiêm Ngừa Viêm Gan",
+                "Tiêm Ngừa Bệnh Truyền Nhiễm",
+                "Tiêm Ngừa Nhiễm Khuẩn",
+              ];
+              const lowercasedAppointmentTypes = appointmentTypes.map((type) =>
+                type.toLowerCase()
+              );
+
+              if (lowercasedAppointmentTypes.includes(lowercasedValue)) {
+                item.value.appointment_type = value
+                  .split(" ")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ");
+              } else {
+                console.error("Invalid appointment type:", value);
+              }
+
+              break;
+            case "ngày bắt đầu":
+              // Extract day, month, and year using regex
+              const match = value.match(
+                /ngày (\d{1,2}) tháng (\d{1,2}) năm (\d{4})/
+              );
+              if (match) {
+                const day = match[1].padStart(2, "0");
+                const month = match[2].padStart(2, "0");
+                const year = match[3];
+                const formattedDate = `${year}-${month}-${day}`;
+                item.value.start_date = formattedDate;
+              } else {
+                console.error("Invalid date format:", value);
+              }
+              break;
+            case "địa điểm":
+              item.value.place = value;
+              break;
+            case "trạng thái":
+              item.value.status = value;
+              break;
+            case "ghi chú":
+              item.value.note = value;
+              break;
+          }
+        }
+      }
+    };
+
     return {
       create,
+      isListening,
+      toggleVoiceRecognition,
+      handleVoiceCommand,
     };
   },
 };
@@ -49,8 +159,12 @@ export default {
                 <option value="Tiêm Ngừa Covid 19">Tiêm Ngừa Covid 19</option>
                 <option value="Tiêm Ngừa Uốn Ván">Tiêm Ngừa Uốn Ván</option>
                 <option value="Tiêm Ngừa Viêm Gan">Tiêm Ngừa Viêm Gan</option>
-                <option value="Tiêm Ngừa Bệnh Truyền Nhiễm">Tiêm Ngừa Bệnh Truyền Nhiễm</option>
-                <option value="Tiêm Ngừa Nhiễm Khuẩn">Tiêm Ngừa Nhiễm Khuẩn</option>
+                <option value="Tiêm Ngừa Bệnh Truyền Nhiễm">
+                  Tiêm Ngừa Bệnh Truyền Nhiễm
+                </option>
+                <option value="Tiêm Ngừa Nhiễm Khuẩn">
+                  Tiêm Ngừa Nhiễm Khuẩn
+                </option>
               </select>
             </div>
 
@@ -94,25 +208,36 @@ export default {
               />
             </div>
             <div class="form-group">
-              <label for="note"
-                >Ghi Chú:</label
-              >
+              <label for="note">Ghi Chú:</label>
               <input
                 type="text"
                 class="form-control"
                 id="note"
                 name="note"
                 v-model="item.note"
-                
               />
             </div>
+            <!-- Thêm nút nhận dạng giọng nói -->
+            <button
+              type="button"
+              class="btn btn-outline-dark rounded-circle"
+              style="font-size: 14px; width: 50px; height: 40px"
+              @click="toggleVoiceRecognition"
+              id="toggleVoiceButton"
+            >
+              <span v-if="isListening" class="material-symbols-outlined"
+                >mic_off</span
+              >
+              <span v-else class="material-symbols-outlined">mic</span>
+            </button>
+
             <!-- <button type="button" class="btn btn-outline-secondary px-3 py-2">
               <span class="material-symbols-outlined"> mic </span>
             </button> -->
             <button
               type="button"
               class="btn btn-primary px-3 py-2"
-              style="font-size: 14px; "
+              style="font-size: 14px"
               @click="create"
               id="add"
             >

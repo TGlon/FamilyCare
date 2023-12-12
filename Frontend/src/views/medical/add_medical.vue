@@ -29,6 +29,7 @@ export default {
     };
 
     recognition.onresult = (event) => {
+      //lấy thông tin từ đoạn giọng nói đầu tiên của kết quả đầu tiên.
       const transcript = event.results[0][0].transcript;
       handleVoiceCommand(transcript);
     };
@@ -58,10 +59,11 @@ export default {
     };
 
     const handleVoiceCommand = (command) => {
-      const keywords = ["chuẩn đoán", "tình trạng sức khỏe", "bác", "ghi chú"];
+      const keywords = ["chuẩn đoán", "tình trạng sức khỏe", "Bác sĩ", "ghi chú"];
       for (const keyword of keywords) {
         if (command.includes(keyword)) {
           const value = command.replace(keyword, "").trim();
+          console.log("Keyword:", keyword, "Value:", value);
           switch (keyword) {
             case "chuẩn đoán":
               item.value.diagnosis = value;
@@ -69,7 +71,7 @@ export default {
             case "tình trạng sức khỏe":
               item.value.medical_condition = value;
               break;
-            case "bác":
+            case "Bác sĩ":
               item.value.doctor = value;
               break;
             case "ghi chú":
@@ -79,6 +81,33 @@ export default {
         }
       }
     };
+//     const handleVoiceCommand = (command) => {
+//   const keywords = ["chuẩn đoán", "tình trạng sức khỏe", "bác sĩ", "ghi chú"];
+//   const lowercaseCommand = command.toLowerCase();
+
+//   for (const keyword of keywords) {
+//     const lowercaseKeyword = keyword.toLowerCase();
+
+//     if (lowercaseCommand.includes(lowercaseKeyword)) {
+//       const value = command.replace(keyword, "").trim();
+      
+//       switch (lowercaseKeyword) {
+//         case "chuẩn đoán":
+//           item.value.diagnosis = value;
+//           break;
+//         case "tình trạng sức khỏe":
+//           item.value.medical_condition = value;
+//           break;
+//         case "bác sĩ":
+//           item.value.doctor = value;
+//           break;
+//         case "ghi chú":
+//           item.value.note = value;
+//           break;
+//       }
+//     }
+//   }
+// };
 
     return {
       item,
@@ -162,7 +191,7 @@ export default {
             </div>
             <button
               type="button"
-              class="btn btn-secondary  rounded-circle"
+              class="btn btn-outline-dark  rounded-circle"
               style="font-size: 14px;width: 50px; height: 40px;"
               @click="toggleVoiceRecognition"
               id="toggleVoiceButton"

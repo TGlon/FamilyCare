@@ -121,10 +121,10 @@
       :items="setPages"
       :fields="[
         'Ngày Ghi Nhận',
-        'Cân Nặng',
-        'Chiều Cao',
-        'Huyết Áp',
-        'Nhịp Tim',
+        'Cân Nặng (Kg)',
+        'Chiều Cao (Cm)',
+        'Huyết Áp (mmHg)',
+        'Nhịp Tim (bpm)',
         'Nhóm Máu',
       ]"
       :labels="[
@@ -249,13 +249,20 @@ export default {
         } else data.numberOfPages = setNumberOfPages.value;
         data.startRow = (data.currentPage - 1) * data.entryValue + 1;
         data.endRow = data.currentPage * data.entryValue;
-        return filtered.value.filter((item, index) => {
-          return (
-            index + 1 > (data.currentPage - 1) * data.entryValue &&
-            index + 1 <= data.currentPage * data.entryValue
-          );
-        });
-      } else return data.items.value;
+        const formattedData = filtered.value.map((item) => {
+      return {
+        ...item,
+        recording_date: formatDate(item.recording_date, "MM-DD-YYYY"), // Use your formatDate function
+      };
+    });
+
+    return formattedData.filter((item, index) => {
+      return (
+        index + 1 > (data.currentPage - 1) * data.entryValue &&
+        index + 1 <= data.currentPage * data.entryValue
+      );
+    });
+  } else return data.items.value;
     });
     // Methods
     const create = async () => {

@@ -98,7 +98,7 @@ export const alert_noti = (title, text) => {
         <th>Tên Thuốc</th>
         <th>Thời Điểm</th>
         <th>Liều Lượng</th>
-        <th>Ghi Chú</th>
+        <th>Số Lượng</th>
       </tr>
     </thead>
     <tbody>

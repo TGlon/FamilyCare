@@ -58,8 +58,12 @@ export default {
                 name="appointment_type"
                 v-model="item.appointment_type"
               >
-                <option value="Tiêm Ngừa">Tiêm Ngừa</option>
-                <option value="Khám Bệnh">Khám Bệnh</option>
+              <option value="Khám Bệnh">Khám Bệnh</option>
+                <option value="Tiêm Ngừa Covid 19">Tiêm Ngừa Covid 19</option>
+                <option value="Tiêm Ngừa Uốn Ván">Tiêm Ngừa Uốn Ván</option>
+                <option value="Tiêm Ngừa Viêm Gan">Tiêm Ngừa Viêm Gan</option>
+                <option value="Tiêm Ngừa Bệnh Truyền Nhiễm">Tiêm Ngừa Bệnh Truyền Nhiễm</option>
+                <option value="Tiêm Ngừa Nhiễm Khuẩn">Tiêm Ngừa Nhiễm Khuẩn</option>
               </select>
             </div>
 

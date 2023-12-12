@@ -168,6 +168,7 @@ import {
   alert_error,
   alert_delete,
 } from "../../assets/js/common.alert";
+import SetTime from "../../services/settime.service"
 export default {
   components: {
     Table,
@@ -296,7 +297,11 @@ export default {
           UserId: userId,
           roleId: data.itemAdd.role,
         };
-
+        const TimeData = {
+          day: "1",
+          UserId: userId
+        }
+        const CreateNotiTime = await http_create(SetTime, TimeData);
         const CreateAccount = await http_create(Account, AccountData);
 
         // Check if CreateAccount was successful

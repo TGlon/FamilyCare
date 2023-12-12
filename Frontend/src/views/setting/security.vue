@@ -93,7 +93,7 @@
 
 <script>
 import Account from "../../services/account.services";
-import { reactive, onBeforeMount } from "vue";
+import { reactive, onBeforeMount , ref} from "vue";
 import {
   http_update,
   http_findAccountByUserId,
@@ -156,10 +156,10 @@ export default {
     onBeforeMount(async () => {
       refresh();
     });
-
+    const activeMenu = ref(2);
     return {
       data,
-      updatePassword,
+      updatePassword, activeMenu
     };
   },
 };

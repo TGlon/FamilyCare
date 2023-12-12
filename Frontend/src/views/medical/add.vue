@@ -65,7 +65,7 @@ export default {
 </script>
 
 <template>
-  <div class="modal" id="modal-addmedi">
+  <div class="modal" id="modal-addmedi" >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -82,7 +82,7 @@ export default {
                   <th>Tên Thuốc (<span style="color: red">*</span>)</th>
                   <th>Thời Điểm (<span style="color: red">*</span>)</th>
                   <th>Liều Lượng (<span style="color: red">*</span>)</th>
-                  <th>Ghi Chú</th>
+                  <th>Số Lượng (<span style="color: red">*</span>)</th>
                   <th>Hành Động</th>
                 </tr>
               </thead>
@@ -143,6 +143,7 @@ export default {
                       :id="'note' + index"
                       :name="'note' + index"
                       v-model="medication.note"
+                      required
                     />
                   </td>
                   <td>

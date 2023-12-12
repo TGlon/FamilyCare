@@ -57,7 +57,7 @@
           /> -->
       </div>
       <div class="d-flex align-items-start">
-        <button
+        <!-- <button
           type="button"
           class="btn btn-outline-danger mr-3"
           data-toggle="modal"
@@ -65,7 +65,7 @@
           @click="deleteMany()"
         >
           <span id="delete-all" class="mx-2">Xoá</span>
-        </button>
+        </button> -->
         <!-- <DeleteAll :items="data.items" /> -->
         <button
           type="button"
@@ -292,11 +292,11 @@ export default {
       if (isConfirmed == true) {
         const result = await http_deleteOne(Family, _id);
         console.log("Name:", result);
+        await refresh();
         alert_success(
           `Xoá Hộ Gia Đình`,
           `Bạn đã xoá thành công hộ gia đình ${result.document.name}`
         );
-        refresh();
       }
     };
     const edit = async (editValue) => {

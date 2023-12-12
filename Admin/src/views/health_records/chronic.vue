@@ -254,28 +254,44 @@ export default {
       return Math.ceil(filtered.value.length / data.entryValue);
     });
     const setPages = computed(() => {
-      if (data.items.length > 0) {
-        if (setNumberOfPages.value == 0 || data.entryValue == "All") {
-          data.entryValue = data.items.length;
-          data.numberOfPages = 1;
-        } else data.numberOfPages = setNumberOfPages.value;
-        data.startRow = (data.currentPage - 1) * data.entryValue + 1;
-        data.endRow = data.currentPage * data.entryValue;
-        return filtered.value
-          .map((item) => {
-            return {
-              ...item,
-              username: item.User ? item.User.name : "-",
-            };
-          })
-          .filter((item, index) => {
-            return (
-              index + 1 > (data.currentPage - 1) * data.entryValue &&
-              index + 1 <= data.currentPage * data.entryValue
-            );
-          });
-      } else return data.items.value;
+  if (data.items.length > 0) {
+    if (setNumberOfPages.value == 0 || data.entryValue == "All") {
+      data.entryValue = data.items.length;
+      data.numberOfPages = 1;
+    } else data.numberOfPages = setNumberOfPages.value;
+    data.startRow = (data.currentPage - 1) * data.entryValue + 1;
+    data.endRow = data.currentPage * data.entryValue;
+
+    // Sorting based on the 'username' property
+    const sortedItems = filtered.value
+      .map((item) => {
+        return {
+          ...item,
+          username: item.User ? item.User.name : "-",
+        };
+      })
+      .sort((a, b) => {
+        // Change 'username' to the actual property name you want to sort
+        const nameA = a.username.toUpperCase();
+        const nameB = b.username.toUpperCase();
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+        return 0;
+      });
+
+    return sortedItems.filter((item, index) => {
+      return (
+        index + 1 > (data.currentPage - 1) * data.entryValue &&
+        index + 1 <= data.currentPage * data.entryValue
+      );
     });
+  } else return data.items.value;
+});
+
     // Methods
     const create = async () => {
       const idne = sessionStorage.getItem("UserId");

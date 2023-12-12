@@ -26,7 +26,7 @@
         >
           prescriptions
         </span>
-        THUỐC HAY SỬ DỤNG
+        THUỐC NGƯỜI DÙNG SỬ DỤNG
       </button>
       <button class="custom-button" @click="toggleLineChart()">
         <span
@@ -158,23 +158,72 @@ export default {
         "#FF3366",
         "#3366FF",
         "#33FF66",
+        "#6633CC",
+        "#FF9900",
+        "#99FF33",
+        "#CC33FF",
+        "#FF0066",
+        "#33CCFF",
+        "#FFCC00",
+        "#00FF66",
+        "#9966FF",
+        "#FF6600",
+        "#00FFCC",
+        "#FF6666",
+        "#66CCFF",
+        "#FFCC33",
+        "#33FF99",
+        "#CC66FF",
+        "#FF99FF",
+        "#FF3300",
+        "#66FF99",
+        "#FF3399",
+        "#99FF66",
+        "#FF9933",
+        "#0099FF",
+        "#FF6666",
+        "#33FF99",
+        "#FF66CC",
+        "#66FFCC",
+        "#FF99CC",
+        "#3399FF",
+        "#FFCC66",
+        "#FF3366",
+        "#66FF33",
+        "#33CCFF",
+        "#FF6633",
+        "#FF9933",
+        "#99FF66",
+        "#FF33A6",
+        "#33A6FF",
+        "#33FFA6",
+        "#FF33C3",
+        "#33C3FF",
+        "#33FFC3",
+        "#FF3366",
+        "#3366FF",
+        "#33FF66",
       ];
 
       if (Array.isArray(data)) {
-        const labelCountMap = {};
-        data.forEach((item) => {
-          const label = item.name;
+        const labelCountMap = new Map();
 
-          if (labelCountMap[label]) {
-            labelCountMap[label]++; // Tăng số lần xuất hiện của label
+        data.forEach((item) => {
+          const label = item.name.trim().toLowerCase(); // Trim whitespace and convert to lowercase
+          const originalLabel = item.name;
+
+          if (labelCountMap.has(label)) {
+            // Use the lowercase label for comparison
+            labelCountMap.set(label, labelCountMap.get(label) + 1);
           } else {
-            labelCountMap[label] = 1; // Đặt số lần xuất hiện ban đầu cho label
+            labelCountMap.set(label, 1);
           }
         });
-        for (const label in labelCountMap) {
+
+        labelCountMap.forEach((count, label) => {
           chartLabels.push(label);
-          chartData.push(labelCountMap[label]);
-        }
+          chartData.push(count);
+        });
       }
 
       // console.log("Chart data:", chartData);

@@ -28,7 +28,7 @@ export default {
     },
     showActionList: {
       type: Array,
-      default: [true, true, true],
+      default: [ true, true],
     },
   },
   setup(props, ntx) {},
@@ -69,7 +69,7 @@ export default {
               visibility
             </span>
           </button>
-          <button
+          <!-- <button
             v-if="showActionList[1] == true"
             type="button"
             class="mx-2 format-btn"
@@ -83,11 +83,11 @@ export default {
             >
               edit
             </span>
-          </button>
+          </button> -->
           <span
-            v-if="showActionList[2] == true"
+            v-if="showActionList[1] == true"
             id="delete"
-            class="material-symbols-outlined"
+            class="material-symbols-outlined ml-2"
             @click="$emit('delete', item._id, item)"
           >
             delete

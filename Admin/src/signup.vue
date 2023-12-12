@@ -203,7 +203,7 @@
                   class="col-form-label col-4"
                   style="font-weight: bold; color: white"
                 >
-                  Mã Định Danh(<span style="color: red">*</span>):
+                  Nghề Nghiệp(<span style="color: red">*</span>):
                 </label>
                 <div class="col-8">
                   <input

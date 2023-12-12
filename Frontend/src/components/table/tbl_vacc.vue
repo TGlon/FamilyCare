@@ -28,7 +28,7 @@ export default {
     },
     showActionList: {
       type: Array,
-      default: [true, true, true, true],
+      default: [ true, true, true],
     },
     startRow: {
       type: Number,
@@ -65,7 +65,7 @@ export default {
         </td>
         <td v-if="activeAction == true">
           <div class="d-flex align-items-center">
-            <button
+            <!-- <button
               v-if="showActionList[0] == true"
               type="button"
               class="format-btn"
@@ -79,9 +79,9 @@ export default {
               >
                 visibility
               </span>
-            </button>
+            </button> -->
             <button
-              v-if="showActionList[1] == true"
+              v-if="showActionList[0] == true"
               type="button"
               class="ml-2 format-btn"
               data-toggle="modal"
@@ -97,7 +97,7 @@ export default {
             </button>
             
             <button
-              v-if="showActionList[2] == true"
+              v-if="showActionList[1] == true"
               type="button"
               class="format-btn mr-2 ml-2"
               data-toggle="modal"
@@ -112,7 +112,7 @@ export default {
               </span>
             </button>
             <span
-              v-if="showActionList[3] == true"
+              v-if="showActionList[2] == true"
               id="delete"
               class="material-symbols-outlined"
               @click="$emit('delete', item._id, item)"

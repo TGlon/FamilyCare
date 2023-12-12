@@ -19,7 +19,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#personal-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0;width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Thông tin bệnh tật
@@ -34,15 +34,15 @@
                   <div class="col-md-6">
                     <div class="mb-3">
                       <p class="mb-0">
-                        <span class="font-weight-bold">chuẩn đoán: </span
+                        <span class="font-weight-bold">Chuẩn Đoán: </span
                         >{{ id.diagnosis }}
                       </p>
                       <p class="mb-0">
-                        <span class="font-weight-bold">tình trạng: </span
+                        <span class="font-weight-bold">Tình Trạng: </span
                         >{{ id.medical_condition }}
                       </p>
                       <p class="mb-0">
-                        <span class="font-weight-bold">bác sĩ: </span
+                        <span class="font-weight-bold">Bác Sĩ: </span
                         >{{ id.doctor }}
                       </p>
                     </div>
@@ -56,7 +56,7 @@
                     </div>
                     <div class="mb-3">
                       <p class="mb-0">
-                        <span class="font-weight-bold">ngày chuẩn đoán: </span
+                        <span class="font-weight-bold">Ngày Chuẩn Đoán: </span
                         >{{ id.start_date }}
                       </p>
                     </div>
@@ -70,7 +70,7 @@
               data-toggle="collapse"
               class="px-3 py-2 h6 border-none"
               data-target="#medicine-info"
-              style="margin-bottom: 0"
+              style="margin-bottom: 0;width:765px;border-radius: 5px"
               @click="togglePersonalInfo"
             >
               Đơn Thuốc
@@ -151,7 +151,7 @@ export default {
       name: "Tên thuốc",
       frequency: "Thời điểm",
       doses: "Liều lượng",
-      note: "Ghi chú",
+      note: "Số Lượng",
     };
     return {
       isActive,

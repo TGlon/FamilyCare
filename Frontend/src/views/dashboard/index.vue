@@ -61,7 +61,7 @@ import Vaccination from "../../services/vaccination.service";
 import Chart from "chart.js/auto";
 import Medicine from "../../services/medicine.service";
 import Health from "../../services/health_statistics.service";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 export default {
   setup() {
@@ -113,7 +113,7 @@ export default {
           (record) => record._id === item.MedicalHistoryId
         )
       );
-
+      console.log(filteredData);
       const chartData = [];
       const chartLabels = [];
       const chartColors = [
@@ -147,24 +147,77 @@ export default {
         "#FF3366",
         "#3366FF",
         "#33FF66",
+        "#6633CC",
+        "#FF9900",
+        "#99FF33",
+        "#CC33FF",
+        "#FF0066",
+        "#33CCFF",
+        "#FFCC00",
+        "#00FF66",
+        "#9966FF",
+        "#FF6600",
+        "#00FFCC",
+        "#FF6666",
+        "#66CCFF",
+        "#FFCC33",
+        "#33FF99",
+        "#CC66FF",
+        "#FF99FF",
+        "#FF3300",
+        "#66FF99",
+        "#FF3399",
+        "#99FF66",
+        "#FF9933",
+        "#0099FF",
+        "#FF6666",
+        "#33FF99",
+        "#FF66CC",
+        "#66FFCC",
+        "#FF99CC",
+        "#3399FF",
+        "#FFCC66",
+        "#FF3366",
+        "#66FF33",
+        "#33CCFF",
+        "#FF6633",
+        "#FF9933",
+        "#99FF66",
+        "#FF33A6",
+        "#33A6FF",
+        "#33FFA6",
+        "#FF33C3",
+        "#33C3FF",
+        "#33FFC3",
+        "#FF3366",
+        "#3366FF",
+        "#33FF66",
       ];
 
       if (Array.isArray(filteredData)) {
-        const labelCountMap = {};
-        filteredData.forEach((item) => {
-          const label = item.name;
+        const labelCountMap = new Map();
 
-          if (labelCountMap[label]) {
-            labelCountMap[label]++; // Tăng số lần xuất hiện của label
+        filteredData.forEach((item) => {
+          const label = item.name.trim().toLowerCase(); // Trim whitespace and convert to lowercase
+          const originalLabel = item.name;
+
+          if (labelCountMap.has(label)) {
+            // Use the lowercase label for comparison
+            labelCountMap.set(label, labelCountMap.get(label) + 1);
           } else {
-            labelCountMap[label] = 1; // Đặt số lần xuất hiện ban đầu cho label
+            labelCountMap.set(label, 1);
           }
         });
-        for (const label in labelCountMap) {
+
+        labelCountMap.forEach((count, label) => {
           chartLabels.push(label);
-          chartData.push(labelCountMap[label]);
-        }
+          chartData.push(count);
+        });
       }
+
+      console.log("Filtered Data:", filteredData);
+      console.log("Chart Labels:", chartLabels);
+      console.log("Chart Data:", chartData);
 
       // console.log("Chart data:", chartData);
 
@@ -215,7 +268,6 @@ export default {
                     const percentage = ((value / total) * 100).toFixed(2);
                     return `${context.label}: ${value} (${percentage}%)`;
                   },
-                  
                 },
               },
             },
@@ -260,7 +312,7 @@ export default {
             labels: chartLabels.value,
             datasets: [
               {
-                label: "Số lượng",
+                label: "Số Lần",
                 data: chartData.value,
                 backgroundColor: "rgba(255, 0, 0, 0.5)",
                 borderColor: "red",
@@ -324,7 +376,7 @@ export default {
     const loadHealthData = async () => {
       // Assuming http_getAll returns an array of Health objects
       healthData.value = await http_getAll(Health);
-      healthData.value = healthData.value.filter(item => item.UserId === id);
+      healthData.value = healthData.value.filter((item) => item.UserId === id);
       // healthData.value.filter(item => item.UserId === id);
       // console.log(healthData.value);
     };
@@ -406,7 +458,7 @@ export default {
               title: {
                 display: true,
                 text: "Biểu Đồ Thống Kê Sức Khỏe Cá Nhân",
-                position: "bottom"
+                position: "bottom",
               },
             },
           },
@@ -466,7 +518,7 @@ export default {
   max-width: 300px;
 }
 .custom-button:hover {
-box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
 }
 .chart-container {
   text-align: center !important; /* Center the chart horizontally */
@@ -499,11 +551,10 @@ box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
   height: 500px !important;
   margin-left: 50px;
 }
-#lineChart-container{
+#lineChart-container {
   text-align: center !important; /* Center the chart horizontally */
   display: flex !important;
   justify-content: center !important; /* Center the chart vertically and horizontally */
   align-items: center !important;
 }
-
 </style>

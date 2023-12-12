@@ -32,16 +32,21 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="currentPassword">Thời Gian Thông Báo</label>
+                <!-- {{ data.day }} -->
+                <label for="day">Thời Gian Thông Báo (Ngày)</label>
                 <input
                   type="text"
                   class="form-control"
-                  id="currentPassword"
-                  name="currentPassword"
-                  placeholder="Ví Dụ: Thông Báo Trước 1 Ngày. Nhập Số 1"
+                  id="day"
+                  name="day"
+                  v-model="data.day"
+                  style="width: 170px"
                 />
               </div>
-              
+              <small
+                >Ví Dụ: Nếu Bạn Muốn Thông Báo Trước 1 Ngày. Nhập Vào Số
+                1</small
+              >
             </div>
           </div>
 
@@ -52,7 +57,7 @@
               <button
                 type="button"
                 class="btn btn-primary mr-3"
-                @click="updatePassword"
+                @click="updateTime"
               >
                 Lưu Thay Đổi
               </button>
@@ -66,34 +71,57 @@
 </template>
 
 <script>
-import Account from "../../services/account.services";
+import SetTime from "../../services/settime.service";
 import { reactive, onBeforeMount } from "vue";
-import {
-  http_update,
-  http_findAccountByUserId,
-} from "../../assets/js/common.http";
+import { http_getAll, http_update } from "../../assets/js/common.http";
 import { alert_error, alert_success } from "../../assets/js/common.alert";
+import { ref } from "vue";
 export default {
   components: {},
   setup() {
     const data = reactive({
-      item: {},
-
+      items: [],
+      day: "",
     });
 
-    
-
     const refresh = async () => {
-      
+  try {
+    data.items = await http_getAll(SetTime);
+    const id = sessionStorage.getItem("UserId");
+    data.items = data.items.documents.filter((item) => item.UserId === id);
+    console.log(data.items);
+    data.day = data.items.length > 0 ? data.items[0].day : "";
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+const updateTime = async () => {
+  try {
+    const id = sessionStorage.getItem("UserId");
+    const dataUpdate = {
+      day: data.day,
+      UserId: id,
     };
+    const result = await http_update(SetTime, data.items[0]._id, dataUpdate);
+    if (result) {
+      alert_success("Thông Báo", "Bạn Đã Cập Nhật Thành Công");
+      refresh();
+    } else {
+      alert_error("Lỗi", "Cập Nhật Thất Bại");
+    }
+  } catch (error) {
+    console.error("Error updating data:", error);
+  }
+};
 
     onBeforeMount(async () => {
       refresh();
     });
-
+    const activeMenu = ref(3);
     return {
       data,
-    
+      updateTime,activeMenu
     };
   },
 };
