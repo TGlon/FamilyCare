@@ -72,6 +72,20 @@
         <!-- <DeleteAll :items="data.items" /> -->
         <button
           type="button"
+          class="btn btn-outline-info mr-2"
+          data-toggle="modal"
+          data-target="#modal-addaccmem"
+        >
+          <span id="add" class="mx-2">Tạo Tài Khoản TV Mới</span>
+        </button>
+        <AddMem
+          :item="data.itemAddMem"
+          :mqh="data.relationship"
+          :fam="data.familyadd"
+          @create="create"
+        />
+        <button
+          type="button"
           class="btn btn-outline-primary"
           data-toggle="modal"
           data-target="#modal-addmember"
@@ -97,6 +111,7 @@
         'Giới Tính',
         'SĐT',
         'Mối Quan Hệ',
+        'Gia Đình'
       ]"
       :labels="[
         'name',
@@ -106,6 +121,7 @@
         'gender',
         'phone',
         'relationship',
+        'familyName'
       ]"
       @delete="(value) => deleteOne(value)"
       @edit="
@@ -141,6 +157,7 @@ import Search from "../../components/form/search.vue";
 import Select from "../../components/form/select.vue";
 import Pagination from "../../components/table/pagination.vue";
 import Add from "./add.vue";
+import AddMem from "./createAccMem.vue";
 import Edit from "../family/edit.vue";
 import { ref, reactive, computed, onBeforeMount } from "vue";
 import {
@@ -153,11 +170,12 @@ import {
   http_findAccountByPassportAndName,
   http_findUserFamilyByUserId,
   http_deleteOneUsrFam,
-  http_getAll
+  http_getAll,
 } from "../../assets/js/common.http";
 import User from "../../services/user.service";
 import User_Family from "../../services/user_family.service";
 import View from "./view.vue";
+import Family from "../../services/family.service"
 import {
   alert_delete,
   alert_success,
@@ -171,7 +189,8 @@ export default {
     Select,
     Pagination,
     Edit,
-    View
+    View,
+    AddMem,
     // AddRela
   },
   setup() {
@@ -198,6 +217,7 @@ export default {
         nation: "",
         ethnic: "",
       },
+      itemAddMem: {},
       relationship: {},
       familyadd: {},
       activeEdit: false,
@@ -223,7 +243,7 @@ export default {
         digital_identity: "",
         email: "",
         nation: "",
-        ethnic: ""
+        ethnic: "",
       },
       a: [],
     });
@@ -295,7 +315,10 @@ export default {
           );
           refresh();
         } else {
-          alert_error(`Thêm Quan Hệ`, `Thêm Thành Viên Lỗi Vui Lòng Kiểm Tra Lại Thông Tin`);
+          alert_error(
+            `Thêm Quan Hệ`,
+            `Thêm Thành Viên Lỗi Vui Lòng Kiểm Tra Lại Thông Tin`
+          );
         }
       } else {
         alert_error("Lỗi", "Thành Viên Không Tồn Tại Trong Hệ Thống");
@@ -427,9 +450,9 @@ export default {
         email: item.email,
         nation: item.nation,
         ethnic: item.ethnic,
-        address: item.address
-      }
-    }
+        address: item.address,
+      };
+    };
     // Hàm refresh này hiển thị thông tin người tạo gia đình
     const refresh = async () => {
       const loggedInUserId = sessionStorage.getItem("UserId");
@@ -444,6 +467,7 @@ export default {
       }
       // Tạo một mảng mới để lưu trữ tất cả các FamilyId
       const familyIds = [];
+      let familyNames;
       // Duyệt qua mảng matchingUserFamilies và lấy ra tất cả các _id của FamilyId
       data.matchingUserFamilies.forEach((item) => {
         familyIds.push(item.FamilyId);
@@ -455,6 +479,8 @@ export default {
       // Lặp qua từng FamilyId trong mảng familyIds
       for (const familyId of familyIds) {
         try {
+          const familyName = await http_getOne(Family, familyId);
+          familyNames = familyName.name;
           // Gọi hàm http_getAllUserIdByFamilyId với familyId cụ thể
           const documents = await http_getAllUserIdByFamilyId(
             User_Family,
@@ -480,7 +506,9 @@ export default {
               const userWithRelationship = {
                 user,
                 relationships,
+                familyNames
               };
+              console.log(userWithRelationship);
               // Thêm thông tin người dùng vào mảng tạm thời
               temporaryUserArray.push(userWithRelationship);
             } catch (error) {
@@ -493,7 +521,29 @@ export default {
       }
       data.items = temporaryUserArray.map((userWithRelationship) => {
         // Lấy thông tin user từ userWithRelationship
-        const { user, relationships } = userWithRelationship;
+        
+        const { user, relationships, familyNames } = userWithRelationship;
+        const isCurrentUser = user._id === sessionStorage.getItem("UserId");
+        if(isCurrentUser){
+          return{
+          _id: user._id,
+          name: user.name,
+          gender: user.gender,
+          birthday: user.birthday,
+          address: user.address,
+          passport: user.passport,
+          digital_identity: user.digital_identity,
+          email: user.email,
+          ethnic: user.ethnic,
+          nation: user.nation,
+          insurance: user.insurance,
+          phone: user.phone,
+          relationship: relationships[0],
+          familyName: " "
+          // relationship: relationships[relationships.length - 1],
+        };
+        }
+        
         return {
           _id: user._id,
           name: user.name,
@@ -508,6 +558,7 @@ export default {
           insurance: user.insurance,
           phone: user.phone,
           relationship: relationships[0],
+          familyName: familyNames
           // relationship: relationships[relationships.length - 1],
         };
       });
@@ -629,7 +680,7 @@ export default {
       update,
       create,
       activeMenu,
-      view
+      view,
     };
   },
 };

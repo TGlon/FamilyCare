@@ -38,7 +38,7 @@ io.on("connection", async(socket) => {
     console.log("User Disconnected");
   });
   
-  cron.schedule("15 00 * * *", async () => {
+  cron.schedule("12 09 * * *", async () => {
     const app = await Appointment.findAll();
     const currentDate = moment();
     // Định dạng ngày theo định dạng mong muốn

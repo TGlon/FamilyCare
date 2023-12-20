@@ -87,8 +87,8 @@
     <Table
       :items="setPages"
       :fields="[
-        'Chuẩn Đoán',
-        'Ngày Chuẩn Đoán',
+        'Chẩn Đoán',
+        'Ngày Chẩn Đoán',
         'Tình Trạng Hiện Tại',
         'Bác Sĩ',
         'Ghi Chú',

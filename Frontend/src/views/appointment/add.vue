@@ -1,6 +1,8 @@
 <script>
 import { reactive } from "vue";
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { http_create } from '../../assets/js/common.http';
+import Appointment from "../../services/appointment.service";
 export default {
   props: {
     item: {
@@ -53,13 +55,14 @@ export default {
       recognition.stop();
       shouldRestartRecognition = false;
     };
-    const handleVoiceCommand = (command) => {
+    const handleVoiceCommand = async(command) => {
       const keywords = [
         "cuộc hẹn",
         "ngày bắt đầu",
         "địa điểm",
         "trạng thái",
         "ghi chú",
+        "thêm mới"
       ];
 
       for (const keyword of keywords) {
@@ -115,6 +118,10 @@ export default {
             case "ghi chú":
               item.value.note = value;
               break;
+            case "thêm mới":
+              // const add = await http_create(Appointment, item);
+              // console.log("add", add);
+              create();
           }
         }
       }

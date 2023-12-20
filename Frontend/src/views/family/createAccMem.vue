@@ -28,7 +28,7 @@ export default {
       UsrIdFam: [],
     });
     const create = () => {
-      ctx.emit("create");
+      ctx.emit("create1");
       console.log("Thêm Thành Công");
     };
     const refresh = async () => {
@@ -61,13 +61,13 @@ export default {
 
 <template>
   <!-- The Modal -->
-  <div class="modal" id="modal-addmember">
+  <div class="modal" id="modal-addaccmem">
     <div class="modal-dialog">
       <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title" style="font-size: 15px">
-            Thêm Thành Viên Mới
+            Tạo TK Thành Viên Mới Và Thêm Mối Quan Hệ
           </h4>
           <button type="button" class="close" data-dismiss="modal">
             &times;
@@ -132,7 +132,7 @@ export default {
                 <option value="Khác">Khác</option>
               </select>
             </div>
-            <!-- <div class="form-group">
+            <div class="form-group">
               <label for="insurance"
                 >Mã Y Tế(<span style="color: red">*</span>):</label
               >
@@ -144,8 +144,8 @@ export default {
                 v-model="item.insurance"
                 required
               />
-            </div> -->
-            <!-- <div class="form-group">
+            </div>
+            <div class="form-group">
               <label for="birthday"
                 >Ngày Sinh(<span style="color: red">*</span>):</label
               >
@@ -157,8 +157,8 @@ export default {
                 v-model="item.birthday"
                 required
               />
-            </div> -->
-            <!-- <div class="form-group">
+            </div>
+            <div class="form-group">
               <label for="address"
                 >Địa Chỉ(<span style="color: red">*</span>):</label
               >
@@ -170,7 +170,7 @@ export default {
                 v-model="item.address"
                 required
               />
-            </div> -->
+            </div>
             <div class="form-group">
               <label for="passport"
                 >CCCD/CMND(<span style="color: red">*</span>):</label
@@ -184,7 +184,7 @@ export default {
                 required
               />
             </div>
-            <!-- <div class="form-group">
+            <div class="form-group">
               <label for="gender"
                 >Giới Tính(<span style="color: red">*</span>):</label
               >
@@ -222,7 +222,7 @@ export default {
                 />
                 <label for="gender-khac">Khác</label>
               </div>
-            </div> -->
+            </div>
             <div class="form-group">
               <label for="phone"
                 >Số Điện Thoại(<span style="color: red">*</span>):</label
@@ -237,7 +237,7 @@ export default {
               />
             </div>
 
-            <!-- <div class="form-group">
+            <div class="form-group">
               <label for="digital_identity"
                 >Nghề Nghiệp(<span style="color: red">*</span>):</label
               >
@@ -249,8 +249,8 @@ export default {
                 v-model="item.digital_identity"
                 required
               />
-            </div> -->
-            <!-- <div class="form-group">
+            </div>
+            <div class="form-group">
               <label for="email"
                 >Email(<span style="color: red">*</span>):</label
               >
@@ -262,8 +262,8 @@ export default {
                 v-model="item.email"
                 required
               />
-            </div> -->
-            <!-- <div class="form-group">
+            </div>
+            <div class="form-group">
               <label for="nation"
                 >Quốc Tịch(<span style="color: red">*</span>):</label
               >
@@ -288,7 +288,7 @@ export default {
                 v-model="item.ethnic"
                 required
               />
-            </div> -->
+            </div>
             <button
               type="button"
               class="btn btn-primary px-3 py-2"

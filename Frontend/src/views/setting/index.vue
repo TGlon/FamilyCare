@@ -176,11 +176,10 @@
                 Lưu Thay Đổi
               </button>
               <!-- <button type="button" class="btn btn-secondary">Thiết Lập Lại</button> -->
-            </div>
-            <div class="col-md-6" style="float: right !important;">
+            <div  style="float: left !important;" class="mr-2">
               <button
               type="button"
-              class="btn btn-outline-dark rounded-circle"
+              class="btn btn-outline-dark "
               style="font-size: 14px; width: 50px; height: 40px"
               @click="toggleVoiceRecognition"
               id="toggleVoiceButton"
@@ -190,6 +189,7 @@
               >
               <span v-else class="material-symbols-outlined">mic</span>
             </button>
+            </div>
             </div>
           </div>
         </form>

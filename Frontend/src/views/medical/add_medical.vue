@@ -59,13 +59,13 @@ export default {
     };
 
     const handleVoiceCommand = (command) => {
-      const keywords = ["chuẩn đoán", "tình trạng sức khỏe", "Bác sĩ", "ghi chú"];
+      const keywords = ["chẩn đoán", "tình trạng sức khỏe", "Bác sĩ", "ghi chú"];
       for (const keyword of keywords) {
         if (command.includes(keyword)) {
           const value = command.replace(keyword, "").trim();
           console.log("Keyword:", keyword, "Value:", value);
           switch (keyword) {
-            case "chuẩn đoán":
+            case "chẩn đoán":
               item.value.diagnosis = value;
               break;
             case "tình trạng sức khỏe":
@@ -142,7 +142,7 @@ export default {
           <form action="" class="was-validated">
             <div class="form-group">
               <label for="diagnosis"
-                >Chuẩn Đoán(<span style="color: red">*</span>):</label
+                >Chẩn Đoán(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
@@ -168,7 +168,7 @@ export default {
             </div>
             <div class="form-group">
               <label for="doctor"
-                >Bác Sĩ Chuẩn Đoán(<span style="color: red">*</span>):</label
+                >Bác Sĩ Chẩn Đoán(<span style="color: red">*</span>):</label
               >
               <input
                 type="text"
